@@ -13,9 +13,9 @@ class TimeFormat {
   static const List<String> YEAR_MONTH_DAY = [yyyy, '-', mm, '-', dd];
   static const List<String> YEAR_MONTH_DAY_WITH_HOUR = [
     yyyy,
-    '-',
-    mm,
-    '-',
+    ' ',
+    M,
+    ' ',
     dd,
     ' ',
     HH,
@@ -84,7 +84,7 @@ class KChartWidget extends StatefulWidget {
     this.flingCurve = Curves.decelerate,
     this.isOnDrag,
     this.verticalTextAlignment = VerticalTextAlignment.left,
-        this.decimalSeparator = ".",
+    this.decimalSeparator = ".",
   });
 
   @override
@@ -141,10 +141,13 @@ class _KChartWidgetState extends State<KChartWidget>
     final _painter = ChartPainter(
       widget.chartStyle,
       widget.chartColors,
-      lines: lines, //For TrendLine
+      lines: lines,
+      //For TrendLine
       xFrontPadding: widget.xFrontPadding,
-      isTrendLine: widget.isTrendLine, //For TrendLine
-      selectY: mSelectY, //For TrendLine
+      isTrendLine: widget.isTrendLine,
+      //For TrendLine
+      selectY: mSelectY,
+      //For TrendLine
       datas: widget.datas,
       scaleX: mScaleX,
       scrollX: mScrollX,
@@ -162,7 +165,7 @@ class _KChartWidgetState extends State<KChartWidget>
       fixedLength: widget.fixedLength,
       maDayList: widget.maDayList,
       verticalTextAlignment: widget.verticalTextAlignment,
-        decimalSeparator: widget.decimalSeparator,
+      decimalSeparator: widget.decimalSeparator,
     );
 
     return LayoutBuilder(
@@ -363,15 +366,14 @@ class _KChartWidgetState extends State<KChartWidget>
           final double? entityAmount = entity.amount;
           infos = [
             getDate(entity.time),
-            entity.open.toStringAsFixed(widget.fixedLength),
-            entity.high.toStringAsFixed(widget.fixedLength),
-            entity.low.toStringAsFixed(widget.fixedLength),
-            entity.close.toStringAsFixed(widget.fixedLength),
-            "${upDown > 0 ? "+" : ""}${upDown.toStringAsFixed(widget.fixedLength)}",
-            "${upDownPercent > 0 ? "+" : ''}${upDownPercent.toStringAsFixed(2)}%",
-            if (entityAmount != null) entityAmount.toInt().toString()
+            NumberUtil.format(entity.open.toString(), widget.decimalSeparator),
+            NumberUtil.format(entity.high.toString(), widget.decimalSeparator),
+            NumberUtil.format(entity.low.toString(), widget.decimalSeparator),
+            NumberUtil.format(entity.close.toString(), widget.decimalSeparator),
+            NumberUtil.formatVol(
+                entity.vol.toString(), widget.decimalSeparator),
           ];
-          final dialogPadding = 4.0;
+          final dialogPadding = 6.0;
           final dialogWidth = mWidth / 3;
           return Container(
             margin: EdgeInsets.only(
@@ -380,10 +382,15 @@ class _KChartWidgetState extends State<KChartWidget>
                     : mWidth - dialogWidth - dialogPadding,
                 top: 25),
             width: dialogWidth,
-            decoration: BoxDecoration(
-                color: widget.chartColors.selectFillColor,
-                border: Border.all(
-                    color: widget.chartColors.selectBorderColor, width: 0.5)),
+            decoration: ShapeDecoration(
+              gradient: LinearGradient(
+                begin: Alignment(0.00, -1.00),
+                end: Alignment(0, 1),
+                colors: [Color(0xFF2F404C), Color(0xFF2F404C)],
+              ),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4)),
+            ),
             child: ListView.builder(
               padding: EdgeInsets.all(dialogPadding),
               itemCount: infos.length,
@@ -413,12 +420,25 @@ class _KChartWidgetState extends State<KChartWidget>
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Expanded(
-            child: Text("$infoName",
-                style: TextStyle(
-                    color: widget.chartColors.infoWindowTitleColor,
-                    fontSize: 10.0))),
-        Text(info, style: TextStyle(color: color, fontSize: 10.0)),
+        if (infoName.toLowerCase() != "date") ...[
+          Expanded(
+            child: Text(
+              "$infoName",
+              style: TextStyle(
+                  color: widget.chartColors.infoWindowTitleColor,
+                  fontSize: 10.0,
+                  fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+        Text(
+          info,
+          style: TextStyle(
+            color: color,
+            fontSize: 10.0,
+            fontWeight: infoName.toLowerCase() != "date" ? FontWeight.w400 : FontWeight.w600,
+          ),
+        ),
       ],
     );
     return widget.materialInfoDialog

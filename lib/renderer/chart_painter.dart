@@ -126,7 +126,7 @@ class ChartPainter extends BaseChartPainter {
     );
     if (mVolRect != null) {
       mVolRenderer = VolRenderer(mVolRect!, mVolMaxValue, mVolMinValue,
-          mChildPadding, fixedLength, this.chartStyle, this.chartColors);
+          mChildPadding, fixedLength, this.chartStyle, this.chartColors, this.decimalSeparator);
     }
     if (mSecondaryRect != null) {
       mSecondaryRenderer = SecondaryRenderer(

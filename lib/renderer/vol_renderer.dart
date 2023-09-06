@@ -7,9 +7,10 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
   late double mVolWidth;
   final ChartStyle chartStyle;
   final ChartColors chartColors;
+  final String decimalSeparator;
 
   VolRenderer(Rect mainRect, double maxValue, double minValue,
-      double topPadding, int fixedLength, this.chartStyle, this.chartColors)
+      double topPadding, int fixedLength, this.chartStyle, this.chartColors, this.decimalSeparator)
       : super(
             chartRect: mainRect,
             maxValue: maxValue,
@@ -54,15 +55,15 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
     TextSpan span = TextSpan(
       children: [
         TextSpan(
-            text: "VOL: ${NumberUtil.format(data.vol)}  ",
+            text: "VOL: ${NumberUtil.formatVol(data.vol.toString(), decimalSeparator)}  ",
             style: getTextStyle(this.chartColors.volColor)),
         if (data.MA5Volume.notNullOrZero)
           TextSpan(
-              text: "MA5: ${NumberUtil.format(data.MA5Volume!)}  ",
+              text: "MA5: ${NumberUtil.formatVol(data.MA5Volume.toString(), decimalSeparator)}  ",
               style: getTextStyle(this.chartColors.ma5Color)),
         if (data.MA10Volume.notNullOrZero)
           TextSpan(
-              text: "MA10: ${NumberUtil.format(data.MA10Volume!)}  ",
+              text: "MA10: ${NumberUtil.formatVol(data.MA10Volume.toString(), decimalSeparator)}  ",
               style: getTextStyle(this.chartColors.ma10Color)),
       ],
     );
@@ -74,7 +75,7 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
   @override
   void drawVerticalText(canvas, textStyle, int gridRows) {
     TextSpan span =
-        TextSpan(text: "${NumberUtil.format(maxValue)}", style: textStyle);
+        TextSpan(text: "${NumberUtil.formatVol(maxValue.toString(), decimalSeparator)}", style: textStyle);
     TextPainter tp = TextPainter(text: span, textDirection: TextDirection.ltr);
     tp.layout();
     tp.paint(

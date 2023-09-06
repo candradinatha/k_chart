@@ -1,19 +1,56 @@
 import 'dart:math';
 
+import 'package:decimal/decimal.dart';
+import 'package:intl/intl.dart';
+import 'package:k_chart/extension/string_ext.dart';
+
 class NumberUtil {
-  static String format(double n) {
-    if (n >= 1000000000) {
-      n /= 1000000000;
-      return "${n.toStringAsFixed(2)}B";
-    } else if (n >= 1000000) {
-      n /= 1000000;
-      return "${n.toStringAsFixed(2)}M";
-    } else if (n >= 10000) {
-      n /= 1000;
-      return "${n.toStringAsFixed(2)}K";
-    } else {
-      return n.toStringAsFixed(4);
+  static String formatVol(String n, String decimalSeparator) {
+    String stringNumber = n.replaceAll(',', '');
+
+    // Convert number into double to be formatted.
+    // Default to zero if unable to do so
+    double doubleNumber = double.tryParse(stringNumber) ?? 0;
+
+    // Set number format to use
+    NumberFormat numberFormat = NumberFormat.compactCurrency(
+      locale: 'en_US',
+      symbol: "",
+      decimalDigits: 2,
+    );
+
+    final formattedNumber = numberFormat.format(doubleNumber);
+    if (decimalSeparator == ',') {
+      return formattedNumber.replaceAll(".", ",");
     }
+    return formattedNumber;
+  }
+
+  static String format(String? n, String decimalSeparator) {
+    String stringNumber = n.toString().replaceAll(',', '');
+
+    if (stringNumber.contains("e")) {
+      Decimal decimalNumber = Decimal.tryParse(stringNumber) ?? Decimal.zero;
+      stringNumber = decimalNumber.toString();
+    }
+
+    final splitDecimal = stringNumber.split(".");
+    int decimal = 0;
+
+    if (splitDecimal.length > 1) {
+      decimal = splitDecimal[1].removeTrailingZeros.length;
+    }
+    // Convert number into double to be formatted.
+    // Default to zero if unable to do so
+    double doubleNumber = double.tryParse(stringNumber) ?? 0;
+
+    // Set number format to use
+    NumberFormat numberFormat = NumberFormat.currency(
+      locale: decimalSeparator == ',' ? 'id_ID' : 'en_US',
+      symbol: "",
+      decimalDigits: decimal,
+    );
+    return '${numberFormat.format(doubleNumber)}';
   }
 
   static int getDecimalLength(double b) {
