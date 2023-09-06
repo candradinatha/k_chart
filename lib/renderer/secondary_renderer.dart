@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:k_chart/flutter_k_chart.dart';
 
 import '../entity/macd_entity.dart';
 import '../k_chart_widget.dart' show SecondaryState;
@@ -100,15 +101,15 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
               style: getTextStyle(this.chartColors.macdColor)),
           if (data.dif != 0)
             TextSpan(
-                text: "DIF: ${format(data.dif?.toString(), decimalSeparator)}  ",
+                text: "DIF: ${format(NumberUtil.formatBigDecimal(data.dif ?? 0).toString(), decimalSeparator)}  ",
                 style: getTextStyle(this.chartColors.difColor)),
           if (data.dea != 0)
             TextSpan(
-                text: "DEA: ${format(data.dea?.toString(), decimalSeparator)}  ",
+                text: "DEA: ${format(NumberUtil.formatBigDecimal(data.dea ?? 0).toString(), decimalSeparator)}  ",
                 style: getTextStyle(this.chartColors.deaColor)),
           if (data.macd != 0)
             TextSpan(
-                text: "MACD: ${format(data.macd?.toString(), decimalSeparator)}  ",
+                text: "MACD: ${format(NumberUtil.formatBigDecimal(data.macd ?? 0).toString(), decimalSeparator)}  ",
                 style: getTextStyle(this.chartColors.macdColor)),
         ];
         break;
@@ -134,7 +135,7 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
       case SecondaryState.RSI:
         children = [
           TextSpan(
-              text: "RSI(14): ${format(data.rsi?.toString(), decimalSeparator)}    ",
+              text: "RSI(14): ${format(NumberUtil.formatBigDecimal(data.rsi ?? 0).toString(), decimalSeparator)}    ",
               style: getTextStyle(this.chartColors.rsiColor)),
         ];
         break;
@@ -165,11 +166,11 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
   @override
   void drawVerticalText(canvas, textStyle, int gridRows) {
     TextPainter maxTp = TextPainter(
-        text: TextSpan(text: "${format(maxValue.toString(), decimalSeparator)}", style: textStyle),
+        text: TextSpan(text: "${format(NumberUtil.formatBigDecimal(maxValue).toString(), decimalSeparator)}", style: textStyle),
         textDirection: TextDirection.ltr);
     maxTp.layout();
     TextPainter minTp = TextPainter(
-        text: TextSpan(text: "${format(minValue.toString(), decimalSeparator)}", style: textStyle),
+        text: TextSpan(text: "${format(NumberUtil.formatBigDecimal(minValue).toString(), decimalSeparator)}", style: textStyle),
         textDirection: TextDirection.ltr);
     minTp.layout();
 

@@ -53,6 +53,33 @@ class NumberUtil {
     return '${numberFormat.format(doubleNumber)}';
   }
 
+  static double formatBigDecimal(double value) {
+    if (!value.isNegative) {
+      if (value < 0.0001) {
+        return roundDown(value, 10);
+      } else if (value < 0.1) {
+        return roundDown(value, 6);
+      } else {
+        return roundDown(value, 4);
+      }
+    } else {
+      if (value > -0.0001) {
+        return roundDown(value, 10);
+      } else if (value > -0.1) {
+        return roundDown(value, 6);
+      } else {
+        return roundDown(value, 4);
+      }
+    }
+  }
+
+  static double roundDown(double value, int precision) {
+    final isNegative = value.isNegative;
+    final mod = pow(10.0, precision);
+    final roundDown = (((value.abs() * mod).floor()) / mod);
+    return isNegative ? -roundDown : roundDown;
+  }
+
   static int getDecimalLength(double b) {
     String s = b.toString();
     int dotIndex = s.indexOf(".");

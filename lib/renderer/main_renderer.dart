@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:k_chart/flutter_k_chart.dart';
 
 import '../entity/candle_entity.dart';
 import '../k_chart_widget.dart' show MainState;
@@ -80,15 +81,15 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
         children: [
           if (data.up != 0)
             TextSpan(
-                text: "BOLL: ${format(data.mb?.toString(), decimalSeparator)}    ",
+                text: "BOLL: ${format(NumberUtil.formatBigDecimal(data.mb ?? 0).toString(), decimalSeparator)}  ",
                 style: getTextStyle(this.chartColors.ma5Color)),
           if (data.mb != 0)
             TextSpan(
-                text: "UB: ${format(data.up?.toString(), decimalSeparator)}    ",
+                text: "UB: ${format(NumberUtil.formatBigDecimal(data.up ?? 0).toString(), decimalSeparator)}  ",
                 style: getTextStyle(this.chartColors.ma10Color)),
           if (data.dn != 0)
             TextSpan(
-                text: "LB: ${format(data.dn?.toString(), decimalSeparator)}    ",
+                text: "LB: ${format(NumberUtil.formatBigDecimal(data.dn ?? 0).toString(), decimalSeparator)}  ",
                 style: getTextStyle(this.chartColors.ma30Color)),
         ],
       );
@@ -104,7 +105,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     for (int i = 0; i < (data.maValueList?.length ?? 0); i++) {
       if (data.maValueList?[i] != 0) {
         var item = TextSpan(
-            text: "MA${maDayList[i]}: ${format(data.maValueList![i].toString(), decimalSeparator)}    ",
+            text: "MA${maDayList[i]}: ${format(NumberUtil.formatBigDecimal(data.maValueList![i]).toString(), decimalSeparator)}  ",
             style: getTextStyle(this.chartColors.getMAColor(i)));
         result.add(item);
       }
@@ -242,7 +243,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     double rowSpace = chartRect.height / gridRows;
     for (var i = 0; i <= gridRows; ++i) {
       double value = (gridRows - i) * rowSpace / scaleY + minValue;
-      TextSpan span = TextSpan(text: "${format(value.toString(), decimalSeparator)}", style: textStyle);
+      TextSpan span = TextSpan(text: "${format(NumberUtil.formatBigDecimal(value).toString(), decimalSeparator)}", style: textStyle);
       TextPainter tp =
           TextPainter(text: span, textDirection: TextDirection.ltr);
       tp.layout();
