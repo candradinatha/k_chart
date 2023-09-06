@@ -1,7 +1,10 @@
 import 'dart:math';
 
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart'
     show Color, TextStyle, Rect, Canvas, Size, CustomPainter;
+import 'package:intl/intl.dart';
+import 'package:k_chart/extension/string_ext.dart';
 import 'package:k_chart/utils/date_format_util.dart';
 
 import '../chart_style.dart' show ChartStyle;
@@ -97,6 +100,33 @@ abstract class BaseChartPainter extends CustomPainter {
     //小时线等
     else
       mFormats = [mm, '-', dd, ' ', HH, ':', nn];
+  }
+
+  String format(String? n, String decimalSeparator) {
+    String stringNumber = n.toString().replaceAll(',', '');
+
+    if (stringNumber.contains("e")) {
+      Decimal decimalNumber = Decimal.tryParse(stringNumber) ?? Decimal.zero;
+      stringNumber = decimalNumber.toString();
+    }
+
+    final splitDecimal = stringNumber.split(".");
+    int decimal = 0;
+
+    if (splitDecimal.length > 1) {
+      decimal = splitDecimal[1].removeTrailingZeros.length;
+    }
+    // Convert number into double to be formatted.
+    // Default to zero if unable to do so
+    double doubleNumber = double.tryParse(stringNumber) ?? 0;
+
+    // Set number format to use
+    NumberFormat numberFormat = NumberFormat.currency(
+      locale: decimalSeparator == ',' ? 'id_ID' : 'en_US',
+      symbol: "",
+      decimalDigits: decimal,
+    );
+    return '${numberFormat.format(doubleNumber)}';
   }
 
   @override
@@ -357,7 +387,7 @@ abstract class BaseChartPainter extends CustomPainter {
       (translateX + mTranslateX) * scaleX;
 
   TextStyle getTextStyle(Color color) {
-    return TextStyle(fontSize: 10.0, color: color);
+    return TextStyle(fontSize: 10.0, color: color, fontFamily: 'Gilroy');
   }
 
   @override

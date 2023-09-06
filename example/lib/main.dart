@@ -123,6 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
               isTapShowInfoDialog: false,
               verticalTextAlignment: _verticalTextAlignment,
               maDayList: [1, 100, 1000],
+              decimalSeparator: ",",
             ),
           ),
           if (showLoading)

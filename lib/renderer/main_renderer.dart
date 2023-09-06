@@ -80,15 +80,15 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
         children: [
           if (data.up != 0)
             TextSpan(
-                text: "BOLL:${format(data.mb?.toString(), decimalSeparator)}    ",
+                text: "BOLL: ${format(data.mb?.toString(), decimalSeparator)}    ",
                 style: getTextStyle(this.chartColors.ma5Color)),
           if (data.mb != 0)
             TextSpan(
-                text: "UB:${format(data.up?.toString(), decimalSeparator)}    ",
+                text: "UB: ${format(data.up?.toString(), decimalSeparator)}    ",
                 style: getTextStyle(this.chartColors.ma10Color)),
           if (data.dn != 0)
             TextSpan(
-                text: "LB:${format(data.dn?.toString(), decimalSeparator)}    ",
+                text: "LB: ${format(data.dn?.toString(), decimalSeparator)}    ",
                 style: getTextStyle(this.chartColors.ma30Color)),
         ],
       );
@@ -104,7 +104,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     for (int i = 0; i < (data.maValueList?.length ?? 0); i++) {
       if (data.maValueList?[i] != 0) {
         var item = TextSpan(
-            text: "MA${maDayList[i]}:${format(data.maValueList![i].toString(), decimalSeparator)}    ",
+            text: "MA${maDayList[i]}: ${format(data.maValueList![i].toString(), decimalSeparator)}    ",
             style: getTextStyle(this.chartColors.getMAColor(i)));
         result.add(item);
       }

@@ -13,9 +13,9 @@ class ChartColors {
   Color dnColor = Color(0xffC15466);
   Color volColor = Color(0xff00d2b4);
 
-  Color macdColor = Color(0xffffffff);
-  Color difColor = Color(0xffC9B885);
-  Color deaColor = Color(0xff6CB0A6);
+  Color macdColor = Color(0xFFD3C4ED);
+  Color difColor = Color(0xFF00D2B4);
+  Color deaColor = Color(0xFFFEA200);
 
   Color kColor = Color(0xffC9B885);
   Color dColor = Color(0xff6CB0A6);

@@ -357,7 +357,7 @@ class ChartPainter extends BaseChartPainter {
     if (x < mWidth / 2) {
       //画右边
       TextPainter tp = getTextPainter(
-        mMainLowMinValue.toStringAsFixed(fixedLength),
+        format(mMainLowMinValue.toString(), decimalSeparator),
         chartColors.minColor,
       );
 
@@ -376,7 +376,7 @@ class ChartPainter extends BaseChartPainter {
       );
     } else {
       TextPainter tp = getTextPainter(
-        mMainLowMinValue.toStringAsFixed(fixedLength),
+        format(mMainLowMinValue.toString(), decimalSeparator),
         chartColors.minColor,
       );
 
@@ -399,7 +399,7 @@ class ChartPainter extends BaseChartPainter {
     if (x < mWidth / 2) {
       //画右边
       TextPainter tp = getTextPainter(
-        mMainHighMaxValue.toStringAsFixed(fixedLength),
+        format(mMainHighMaxValue.toString(), decimalSeparator),
         chartColors.maxColor,
       );
 
@@ -418,7 +418,7 @@ class ChartPainter extends BaseChartPainter {
       );
     } else {
       TextPainter tp = getTextPainter(
-        mMainHighMaxValue.toStringAsFixed(fixedLength),
+        format(mMainHighMaxValue.toString(), decimalSeparator),
         chartColors.maxColor,
       );
 
@@ -478,10 +478,19 @@ class ChartPainter extends BaseChartPainter {
     }
     //再画背景和文本
     TextPainter tp = getTextPainter(
-        value.toStringAsFixed(fixedLength),
+        format(value.toString(), decimalSeparator),
         value >= datas!.last.open
             ? this.chartColors.nowPriceUpTextColor
-            : this.chartColors.nowPriceDnTextColor);
+            : this.chartColors.nowPriceDnTextColor,
+      customStyle: TextStyle(
+        fontSize: 10,
+        fontFamily: 'Gilroy',
+        fontWeight: FontWeight.w700,
+        color: value >= datas!.last.open
+            ? this.chartColors.nowPriceUpTextColor
+            : this.chartColors.nowPriceDnTextColor
+      )
+    );
 
     double offsetX;
     switch (verticalTextAlignment) {
@@ -489,13 +498,13 @@ class ChartPainter extends BaseChartPainter {
         offsetX = 0;
         break;
       case VerticalTextAlignment.right:
-        offsetX = mWidth - tp.width;
+        offsetX = mWidth - tp.width - 4;
         break;
     }
 
     double top = y - tp.height / 2;
-    canvas.drawRect(
-        Rect.fromLTRB(offsetX, top, offsetX + tp.width, top + tp.height),
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(Rect.fromLTRB(offsetX -2, top -2, offsetX + tp.width + 2, top + tp.height + 2), Radius.circular(4.0)),
         nowPricePaint);
     tp.paint(canvas, Offset(offsetX, top));
   }
@@ -590,11 +599,11 @@ class ChartPainter extends BaseChartPainter {
     }
   }
 
-  TextPainter getTextPainter(text, color) {
+  TextPainter getTextPainter(text, color, {TextStyle? customStyle}) {
     if (color == null) {
       color = this.chartColors.defaultTextColor;
     }
-    TextSpan span = TextSpan(text: "$text", style: getTextStyle(color));
+    TextSpan span = TextSpan(text: "$text", style: customStyle ?? getTextStyle(color));
     TextPainter tp = TextPainter(text: span, textDirection: TextDirection.ltr);
     tp.layout();
     return tp;

@@ -96,20 +96,20 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
       case SecondaryState.MACD:
         children = [
           TextSpan(
-              text: "MACD(12,26,9)    ",
+              text: "MACD(12,26,9)  ",
               style: getTextStyle(this.chartColors.macdColor)),
-          if (data.macd != 0)
-            TextSpan(
-                text: "MACD: ${format(data.macd?.toString(), decimalSeparator)}    ",
-                style: getTextStyle(this.chartColors.macdColor)),
           if (data.dif != 0)
             TextSpan(
-                text: "DIF: ${format(data.dif?.toString(), decimalSeparator)}    ",
+                text: "DIF: ${format(data.dif?.toString(), decimalSeparator)}  ",
                 style: getTextStyle(this.chartColors.difColor)),
           if (data.dea != 0)
             TextSpan(
-                text: "DEA: ${format(data.dea?.toString(), decimalSeparator)}    ",
+                text: "DEA: ${format(data.dea?.toString(), decimalSeparator)}  ",
                 style: getTextStyle(this.chartColors.deaColor)),
+          if (data.macd != 0)
+            TextSpan(
+                text: "MACD: ${format(data.macd?.toString(), decimalSeparator)}  ",
+                style: getTextStyle(this.chartColors.macdColor)),
         ];
         break;
       case SecondaryState.KDJ:
