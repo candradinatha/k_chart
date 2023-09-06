@@ -48,6 +48,7 @@ class ChartPainter extends BaseChartPainter {
   final bool hideGrid;
   final bool showNowPrice;
   final VerticalTextAlignment verticalTextAlignment;
+  final String decimalSeparator;
 
   ChartPainter(
     this.chartStyle,
@@ -64,6 +65,7 @@ class ChartPainter extends BaseChartPainter {
     isOnTap,
     isTapShowInfoDialog,
     required this.verticalTextAlignment,
+    required this.decimalSeparator,
     mainState,
     volHidden,
     secondaryState,
@@ -119,6 +121,7 @@ class ChartPainter extends BaseChartPainter {
       this.chartColors,
       this.scaleX,
       verticalTextAlignment,
+      decimalSeparator,
       maDayList,
     );
     if (mVolRect != null) {
@@ -127,14 +130,16 @@ class ChartPainter extends BaseChartPainter {
     }
     if (mSecondaryRect != null) {
       mSecondaryRenderer = SecondaryRenderer(
-          mSecondaryRect!,
-          mSecondaryMaxValue,
-          mSecondaryMinValue,
-          mChildPadding,
-          secondaryState,
-          fixedLength,
-          chartStyle,
-          chartColors);
+        mSecondaryRect!,
+        mSecondaryMaxValue,
+        mSecondaryMinValue,
+        mChildPadding,
+        secondaryState,
+        fixedLength,
+        chartStyle,
+        chartColors,
+        decimalSeparator,
+      );
     }
   }
 
@@ -473,7 +478,10 @@ class ChartPainter extends BaseChartPainter {
     }
     //再画背景和文本
     TextPainter tp = getTextPainter(
-        value.toStringAsFixed(fixedLength), this.chartColors.nowPriceTextColor);
+        value.toStringAsFixed(fixedLength),
+        value >= datas!.last.open
+            ? this.chartColors.nowPriceUpTextColor
+            : this.chartColors.nowPriceDnTextColor);
 
     double offsetX;
     switch (verticalTextAlignment) {

@@ -55,6 +55,7 @@ class KChartWidget extends StatefulWidget {
   final VerticalTextAlignment verticalTextAlignment;
   final bool isTrendLine;
   final double xFrontPadding;
+  final String decimalSeparator;
 
   KChartWidget(
     this.datas,
@@ -83,6 +84,7 @@ class KChartWidget extends StatefulWidget {
     this.flingCurve = Curves.decelerate,
     this.isOnDrag,
     this.verticalTextAlignment = VerticalTextAlignment.left,
+        this.decimalSeparator = ".",
   });
 
   @override
@@ -160,6 +162,7 @@ class _KChartWidgetState extends State<KChartWidget>
       fixedLength: widget.fixedLength,
       maDayList: widget.maDayList,
       verticalTextAlignment: widget.verticalTextAlignment,
+        decimalSeparator: widget.decimalSeparator,
     );
 
     return LayoutBuilder(

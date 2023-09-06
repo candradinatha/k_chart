@@ -26,6 +26,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
   double scaleX;
   late Paint mLinePaint;
   final VerticalTextAlignment verticalTextAlignment;
+  final String decimalSeparator;
 
   MainRenderer(
       Rect mainRect,
@@ -38,7 +39,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       this.chartStyle,
       this.chartColors,
       this.scaleX,
-      this.verticalTextAlignment,
+      this.verticalTextAlignment, this.decimalSeparator,
       [this.maDayList = const [5, 10, 20]])
       : super(
             chartRect: mainRect,
@@ -79,15 +80,15 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
         children: [
           if (data.up != 0)
             TextSpan(
-                text: "BOLL:${format(data.mb)}    ",
+                text: "BOLL:${format(data.mb?.toString(), decimalSeparator)}    ",
                 style: getTextStyle(this.chartColors.ma5Color)),
           if (data.mb != 0)
             TextSpan(
-                text: "UB:${format(data.up)}    ",
+                text: "UB:${format(data.up?.toString(), decimalSeparator)}    ",
                 style: getTextStyle(this.chartColors.ma10Color)),
           if (data.dn != 0)
             TextSpan(
-                text: "LB:${format(data.dn)}    ",
+                text: "LB:${format(data.dn?.toString(), decimalSeparator)}    ",
                 style: getTextStyle(this.chartColors.ma30Color)),
         ],
       );
@@ -103,7 +104,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     for (int i = 0; i < (data.maValueList?.length ?? 0); i++) {
       if (data.maValueList?[i] != 0) {
         var item = TextSpan(
-            text: "MA${maDayList[i]}:${format(data.maValueList![i])}    ",
+            text: "MA${maDayList[i]}:${format(data.maValueList![i].toString(), decimalSeparator)}    ",
             style: getTextStyle(this.chartColors.getMAColor(i)));
         result.add(item);
       }
@@ -241,7 +242,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     double rowSpace = chartRect.height / gridRows;
     for (var i = 0; i <= gridRows; ++i) {
       double value = (gridRows - i) * rowSpace / scaleY + minValue;
-      TextSpan span = TextSpan(text: "${format(value)}", style: textStyle);
+      TextSpan span = TextSpan(text: "${format(value.toString(), decimalSeparator)}", style: textStyle);
       TextPainter tp =
           TextPainter(text: span, textDirection: TextDirection.ltr);
       tp.layout();

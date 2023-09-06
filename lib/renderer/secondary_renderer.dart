@@ -11,6 +11,7 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
   SecondaryState state;
   final ChartStyle chartStyle;
   final ChartColors chartColors;
+  final String decimalSeparator;
 
   SecondaryRenderer(
       Rect mainRect,
@@ -20,7 +21,9 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
       this.state,
       int fixedLength,
       this.chartStyle,
-      this.chartColors)
+      this.chartColors,
+      this.decimalSeparator,
+      )
       : super(
             chartRect: mainRect,
             maxValue: maxValue,
@@ -94,18 +97,18 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
         children = [
           TextSpan(
               text: "MACD(12,26,9)    ",
-              style: getTextStyle(this.chartColors.defaultTextColor)),
+              style: getTextStyle(this.chartColors.macdColor)),
           if (data.macd != 0)
             TextSpan(
-                text: "MACD:${format(data.macd)}    ",
+                text: "MACD: ${format(data.macd?.toString(), decimalSeparator)}    ",
                 style: getTextStyle(this.chartColors.macdColor)),
           if (data.dif != 0)
             TextSpan(
-                text: "DIF:${format(data.dif)}    ",
+                text: "DIF: ${format(data.dif?.toString(), decimalSeparator)}    ",
                 style: getTextStyle(this.chartColors.difColor)),
           if (data.dea != 0)
             TextSpan(
-                text: "DEA:${format(data.dea)}    ",
+                text: "DEA: ${format(data.dea?.toString(), decimalSeparator)}    ",
                 style: getTextStyle(this.chartColors.deaColor)),
         ];
         break;
@@ -116,36 +119,36 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
               style: getTextStyle(this.chartColors.defaultTextColor)),
           if (data.macd != 0)
             TextSpan(
-                text: "K:${format(data.k)}    ",
+                text: "K: ${format(data.k?.toString(), decimalSeparator)}    ",
                 style: getTextStyle(this.chartColors.kColor)),
           if (data.dif != 0)
             TextSpan(
-                text: "D:${format(data.d)}    ",
+                text: "D: ${format(data.d?.toString(), decimalSeparator)}    ",
                 style: getTextStyle(this.chartColors.dColor)),
           if (data.dea != 0)
             TextSpan(
-                text: "J:${format(data.j)}    ",
+                text: "J: ${format(data.j?.toString(), decimalSeparator)}    ",
                 style: getTextStyle(this.chartColors.jColor)),
         ];
         break;
       case SecondaryState.RSI:
         children = [
           TextSpan(
-              text: "RSI(14):${format(data.rsi)}    ",
+              text: "RSI(14): ${format(data.rsi?.toString(), decimalSeparator)}    ",
               style: getTextStyle(this.chartColors.rsiColor)),
         ];
         break;
       case SecondaryState.WR:
         children = [
           TextSpan(
-              text: "WR(14):${format(data.r)}    ",
+              text: "WR(14): ${format(data.r?.toString(), decimalSeparator)}    ",
               style: getTextStyle(this.chartColors.rsiColor)),
         ];
         break;
       case SecondaryState.CCI:
         children = [
           TextSpan(
-              text: "CCI(14):${format(data.cci)}    ",
+              text: "CCI(14): ${format(data.cci?.toString(), decimalSeparator)}    ",
               style: getTextStyle(this.chartColors.rsiColor)),
         ];
         break;
@@ -162,11 +165,11 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
   @override
   void drawVerticalText(canvas, textStyle, int gridRows) {
     TextPainter maxTp = TextPainter(
-        text: TextSpan(text: "${format(maxValue)}", style: textStyle),
+        text: TextSpan(text: "${format(maxValue.toString(), decimalSeparator)}", style: textStyle),
         textDirection: TextDirection.ltr);
     maxTp.layout();
     TextPainter minTp = TextPainter(
-        text: TextSpan(text: "${format(minValue)}", style: textStyle),
+        text: TextSpan(text: "${format(minValue.toString(), decimalSeparator)}", style: textStyle),
         textDirection: TextDirection.ltr);
     minTp.layout();
 
