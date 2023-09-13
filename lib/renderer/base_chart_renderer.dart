@@ -41,7 +41,7 @@ abstract class BaseChartRenderer<T> {
 
   double getY(double y) => (maxValue - y) * scaleY + chartRect.top;
 
-  String format(String? n, String decimalSeparator) {
+  String format(String? n, String decimalSeparator, {int? decimal}) {
     String stringNumber = n.toString().replaceAll(',', '');
 
     if (stringNumber.contains("e")) {
@@ -50,11 +50,22 @@ abstract class BaseChartRenderer<T> {
     }
 
     final splitDecimal = stringNumber.split(".");
-    int decimal = 0;
+    int mDecimal = 0;
 
-    if (splitDecimal.length > 1) {
-      decimal = splitDecimal[1].removeTrailingZeros.length;
+    if (decimal != null) {
+      if (splitDecimal.length > 1) {
+        if (splitDecimal[1].length <= decimal) {
+          mDecimal = splitDecimal[1].removeTrailingZeros.length;
+        } else {
+          mDecimal = decimal;
+        }
+      }
+    } else {
+      if (splitDecimal.length > 1) {
+        mDecimal = splitDecimal[1].removeTrailingZeros.length;
+      }
     }
+
     // Convert number into double to be formatted.
     // Default to zero if unable to do so
     double doubleNumber = double.tryParse(stringNumber) ?? 0;
@@ -63,7 +74,7 @@ abstract class BaseChartRenderer<T> {
     NumberFormat numberFormat = NumberFormat.currency(
       locale: decimalSeparator == ',' ? 'id_ID' : 'en_US',
       symbol: "",
-      decimalDigits: decimal,
+      decimalDigits: mDecimal,
     );
     return '${numberFormat.format(doubleNumber)}';
   }

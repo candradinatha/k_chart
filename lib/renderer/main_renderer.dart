@@ -28,6 +28,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
   late Paint mLinePaint;
   final VerticalTextAlignment verticalTextAlignment;
   final String decimalSeparator;
+  final int? decimalPlaces;
 
   MainRenderer(
       Rect mainRect,
@@ -41,6 +42,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       this.chartColors,
       this.scaleX,
       this.verticalTextAlignment, this.decimalSeparator,
+      this.decimalPlaces,
       [this.maDayList = const [5, 10, 20]])
       : super(
             chartRect: mainRect,
@@ -81,15 +83,15 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
         children: [
           if (data.up != 0)
             TextSpan(
-                text: "BOLL: ${format(NumberUtil.formatBigDecimal(data.mb ?? 0).toString(), decimalSeparator)}  ",
+                text: "BOLL: ${format(NumberUtil.formatBigDecimal(data.mb ?? 0).toString(), decimalSeparator, decimal: decimalPlaces)}  ",
                 style: getTextStyle(this.chartColors.ma5Color)),
           if (data.mb != 0)
             TextSpan(
-                text: "UB: ${format(NumberUtil.formatBigDecimal(data.up ?? 0).toString(), decimalSeparator)}  ",
+                text: "UB: ${format(NumberUtil.formatBigDecimal(data.up ?? 0).toString(), decimalSeparator, decimal: decimalPlaces)}  ",
                 style: getTextStyle(this.chartColors.ma10Color)),
           if (data.dn != 0)
             TextSpan(
-                text: "LB: ${format(NumberUtil.formatBigDecimal(data.dn ?? 0).toString(), decimalSeparator)}  ",
+                text: "LB: ${format(NumberUtil.formatBigDecimal(data.dn ?? 0).toString(), decimalSeparator, decimal: decimalPlaces)}  ",
                 style: getTextStyle(this.chartColors.ma30Color)),
         ],
       );
@@ -105,7 +107,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     for (int i = 0; i < (data.maValueList?.length ?? 0); i++) {
       if (data.maValueList?[i] != 0) {
         var item = TextSpan(
-            text: "MA${maDayList[i]}: ${format(NumberUtil.formatBigDecimal(data.maValueList![i]).toString(), decimalSeparator)}  ",
+            text: "MA${maDayList[i]}: ${format(NumberUtil.formatBigDecimal(data.maValueList![i]).toString(), decimalSeparator, decimal: decimalPlaces)}  ",
             style: getTextStyle(this.chartColors.getMAColor(i)));
         result.add(item);
       }
@@ -243,7 +245,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     double rowSpace = chartRect.height / gridRows;
     for (var i = 0; i <= gridRows; ++i) {
       double value = (gridRows - i) * rowSpace / scaleY + minValue;
-      TextSpan span = TextSpan(text: "${format(NumberUtil.formatBigDecimal(value).toString(), decimalSeparator)}", style: textStyle);
+      TextSpan span = TextSpan(text: "${format(NumberUtil.formatBigDecimal(value).toString(), decimalSeparator, decimal: decimalPlaces)}", style: textStyle);
       TextPainter tp =
           TextPainter(text: span, textDirection: TextDirection.ltr);
       tp.layout();

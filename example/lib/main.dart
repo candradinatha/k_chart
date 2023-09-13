@@ -124,6 +124,7 @@ class _MyHomePageState extends State<MyHomePage> {
               verticalTextAlignment: _verticalTextAlignment,
               maDayList: [1, 100, 1000],
               decimalSeparator: ",",
+              decimalPlaces: 0,
             ),
           ),
           if (showLoading)

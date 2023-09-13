@@ -49,6 +49,7 @@ class ChartPainter extends BaseChartPainter {
   final bool showNowPrice;
   final VerticalTextAlignment verticalTextAlignment;
   final String decimalSeparator;
+  final int? decimalPlaces;
 
   ChartPainter(
     this.chartStyle,
@@ -66,6 +67,7 @@ class ChartPainter extends BaseChartPainter {
     isTapShowInfoDialog,
     required this.verticalTextAlignment,
     required this.decimalSeparator,
+        this.decimalPlaces,
     mainState,
     volHidden,
     secondaryState,
@@ -122,6 +124,7 @@ class ChartPainter extends BaseChartPainter {
       this.scaleX,
       verticalTextAlignment,
       decimalSeparator,
+      decimalPlaces,
       maDayList,
     );
     if (mVolRect != null) {
@@ -263,7 +266,7 @@ class ChartPainter extends BaseChartPainter {
     var index = calculateSelectedX(selectX);
     KLineEntity point = getItem(index);
 
-    TextPainter tp = getTextPainter(NumberUtil.format(point.close.toString(), decimalSeparator), chartColors.crossTextColor);
+    TextPainter tp = getTextPainter(NumberUtil.format(point.close.toString(), decimalSeparator, decimal: decimalPlaces), chartColors.crossTextColor);
     double textHeight = tp.height;
     double textWidth = tp.width;
 
@@ -357,7 +360,7 @@ class ChartPainter extends BaseChartPainter {
     if (x < mWidth / 2) {
       //画右边
       TextPainter tp = getTextPainter(
-        format(mMainLowMinValue.toString(), decimalSeparator),
+        format(mMainLowMinValue.toString(), decimalSeparator, decimal: decimalPlaces),
         chartColors.minColor,
       );
 
@@ -376,7 +379,7 @@ class ChartPainter extends BaseChartPainter {
       );
     } else {
       TextPainter tp = getTextPainter(
-        format(mMainLowMinValue.toString(), decimalSeparator),
+        format(mMainLowMinValue.toString(), decimalSeparator, decimal: decimalPlaces,),
         chartColors.minColor,
       );
 
@@ -399,7 +402,7 @@ class ChartPainter extends BaseChartPainter {
     if (x < mWidth / 2) {
       //画右边
       TextPainter tp = getTextPainter(
-        format(mMainHighMaxValue.toString(), decimalSeparator),
+        format(mMainHighMaxValue.toString(), decimalSeparator, decimal: decimalPlaces,),
         chartColors.maxColor,
       );
 
@@ -418,7 +421,7 @@ class ChartPainter extends BaseChartPainter {
       );
     } else {
       TextPainter tp = getTextPainter(
-        format(mMainHighMaxValue.toString(), decimalSeparator),
+        format(mMainHighMaxValue.toString(), decimalSeparator, decimal: decimalPlaces,),
         chartColors.maxColor,
       );
 
@@ -478,7 +481,7 @@ class ChartPainter extends BaseChartPainter {
     }
     //再画背景和文本
     TextPainter tp = getTextPainter(
-        format(value.toString(), decimalSeparator),
+        format(value.toString(), decimalSeparator, decimal: decimalPlaces,),
         value >= datas!.last.open
             ? this.chartColors.nowPriceUpTextColor
             : this.chartColors.nowPriceDnTextColor,

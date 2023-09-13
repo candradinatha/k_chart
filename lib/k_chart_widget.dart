@@ -56,6 +56,7 @@ class KChartWidget extends StatefulWidget {
   final bool isTrendLine;
   final double xFrontPadding;
   final String decimalSeparator;
+  final int? decimalPlaces;
 
   KChartWidget(
     this.datas,
@@ -85,6 +86,7 @@ class KChartWidget extends StatefulWidget {
     this.isOnDrag,
     this.verticalTextAlignment = VerticalTextAlignment.left,
     this.decimalSeparator = ".",
+    this.decimalPlaces,
   });
 
   @override
@@ -166,6 +168,7 @@ class _KChartWidgetState extends State<KChartWidget>
       maDayList: widget.maDayList,
       verticalTextAlignment: widget.verticalTextAlignment,
       decimalSeparator: widget.decimalSeparator,
+      decimalPlaces: widget.decimalPlaces,
     );
 
     return LayoutBuilder(
@@ -436,7 +439,9 @@ class _KChartWidgetState extends State<KChartWidget>
           style: TextStyle(
             color: color,
             fontSize: 10.0,
-            fontWeight: infoName.toLowerCase() != "date" ? FontWeight.w400 : FontWeight.w600,
+            fontWeight: infoName.toLowerCase() != "date"
+                ? FontWeight.w400
+                : FontWeight.w600,
           ),
         ),
       ],
