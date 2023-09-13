@@ -76,7 +76,12 @@ abstract class BaseChartRenderer<T> {
       symbol: "",
       decimalDigits: mDecimal,
     );
-    return '${numberFormat.format(doubleNumber)}';
+    String formattedNumber = numberFormat.format(doubleNumber);
+    if (formattedNumber.split(decimalSeparator).length > 1) {
+      RegExp regex = RegExp(r"([,|.]*0+)(?!.*\d)");
+      return formattedNumber.replaceAll(regex, '');
+    }
+    return formattedNumber;
   }
 
   void drawGrid(Canvas canvas, int gridRows, int gridColumns);
