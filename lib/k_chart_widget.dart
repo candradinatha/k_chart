@@ -386,11 +386,7 @@ class _KChartWidgetState extends State<KChartWidget>
                 top: 25),
             width: dialogWidth,
             decoration: ShapeDecoration(
-              gradient: LinearGradient(
-                begin: Alignment(0.00, -1.00),
-                end: Alignment(0, 1),
-                colors: [Color(0xFF2F404C), Color(0xFF2F404C)],
-              ),
+              color: widget.chartColors.selectFillColor,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(4)),
             ),
