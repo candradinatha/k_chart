@@ -57,6 +57,7 @@ class KChartWidget extends StatefulWidget {
   final double xFrontPadding;
   final String decimalSeparator;
   final int? decimalPlaces;
+  final double? focusHoverOpacity;
 
   KChartWidget(
     this.datas,
@@ -87,6 +88,7 @@ class KChartWidget extends StatefulWidget {
     this.verticalTextAlignment = VerticalTextAlignment.left,
     this.decimalSeparator = ".",
     this.decimalPlaces,
+    this.focusHoverOpacity,
   });
 
   @override
@@ -169,6 +171,7 @@ class _KChartWidgetState extends State<KChartWidget>
       verticalTextAlignment: widget.verticalTextAlignment,
       decimalSeparator: widget.decimalSeparator,
       decimalPlaces: widget.decimalPlaces,
+      focusHoverOpacity: widget.focusHoverOpacity,
     );
 
     return LayoutBuilder(

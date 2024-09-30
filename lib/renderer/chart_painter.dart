@@ -50,6 +50,7 @@ class ChartPainter extends BaseChartPainter {
   final VerticalTextAlignment verticalTextAlignment;
   final String decimalSeparator;
   final int? decimalPlaces;
+  final double? focusHoverOpacity;
 
   ChartPainter(
     this.chartStyle,
@@ -68,6 +69,7 @@ class ChartPainter extends BaseChartPainter {
     required this.verticalTextAlignment,
     required this.decimalSeparator,
         this.decimalPlaces,
+        this.focusHoverOpacity = 0.5,
     mainState,
     volHidden,
     secondaryState,
@@ -207,6 +209,7 @@ class ChartPainter extends BaseChartPainter {
 
     if ((isLongPress == true || (isTapShowInfoDialog && isOnTap)) &&
         isTrendLine == false) {
+      drawOverlay(canvas, size);
       drawCrossLine(canvas, size);
     }
     if (isTrendLine == true) drawTrendLines(canvas, size);
@@ -566,6 +569,32 @@ class ChartPainter extends BaseChartPainter {
               ..strokeWidth = 2);
       });
     }
+  }
+
+
+  void drawOverlay(Canvas canvas, Size size) {
+    // Membuat kuas untuk menggambar kotak
+    final paint = Paint()
+      ..color = Colors.black.withOpacity(focusHoverOpacity ?? 1.0) // Warna kotak
+      ..strokeWidth = 4
+      ..style = PaintingStyle.fill;
+
+    var index = calculateSelectedX(selectX);
+
+    double x = getX(index);
+    double gap = this.chartStyle.vCrossWidth / 2;
+
+    double xLeft = 0;
+    double xRight = getX(index +1);
+
+
+    // Mendefinisikan kotak
+    final rect = Rect.fromLTWH(xLeft, 0, x - gap, size.height); // (x, y, lebar, tinggi)
+    final rect2 = Rect.fromLTWH(xRight - 5, 0, size.width - gap, size.height); // (x, y, lebar, tinggi)
+
+    // Menggambar kotak di canvas
+    canvas.drawRect(rect, paint);
+    canvas.drawRect(rect2, paint);
   }
 
   ///画交叉线
