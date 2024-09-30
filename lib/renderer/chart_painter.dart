@@ -50,7 +50,7 @@ class ChartPainter extends BaseChartPainter {
   final VerticalTextAlignment verticalTextAlignment;
   final String decimalSeparator;
   final int? decimalPlaces;
-  final double? focusHoverOpacity;
+  final Color onHoverShadowColor;
 
   ChartPainter(
     this.chartStyle,
@@ -68,8 +68,8 @@ class ChartPainter extends BaseChartPainter {
     isTapShowInfoDialog,
     required this.verticalTextAlignment,
     required this.decimalSeparator,
+        required this.onHoverShadowColor,
         this.decimalPlaces,
-        this.focusHoverOpacity = 0.5,
     mainState,
     volHidden,
     secondaryState,
@@ -575,7 +575,7 @@ class ChartPainter extends BaseChartPainter {
   void drawOverlay(Canvas canvas, Size size) {
     // Membuat kuas untuk menggambar kotak
     final paint = Paint()
-      ..color = Colors.black.withOpacity(focusHoverOpacity ?? 1.0) // Warna kotak
+      ..color = onHoverShadowColor // Warna kotak
       ..strokeWidth = 4
       ..style = PaintingStyle.fill;
 

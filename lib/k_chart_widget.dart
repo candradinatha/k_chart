@@ -57,7 +57,7 @@ class KChartWidget extends StatefulWidget {
   final double xFrontPadding;
   final String decimalSeparator;
   final int? decimalPlaces;
-  final double? focusHoverOpacity;
+  final Color onHoverShadowColor;
 
   KChartWidget(
     this.datas,
@@ -88,7 +88,7 @@ class KChartWidget extends StatefulWidget {
     this.verticalTextAlignment = VerticalTextAlignment.left,
     this.decimalSeparator = ".",
     this.decimalPlaces,
-    this.focusHoverOpacity,
+    this.onHoverShadowColor = const Color(0x80000000),
   });
 
   @override
@@ -171,7 +171,7 @@ class _KChartWidgetState extends State<KChartWidget>
       verticalTextAlignment: widget.verticalTextAlignment,
       decimalSeparator: widget.decimalSeparator,
       decimalPlaces: widget.decimalPlaces,
-      focusHoverOpacity: widget.focusHoverOpacity,
+      onHoverShadowColor: widget.onHoverShadowColor,
     );
 
     return LayoutBuilder(
