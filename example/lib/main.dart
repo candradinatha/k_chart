@@ -74,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _asks = [];
     double amount = 0.0;
     bids.sort((left, right) => left.price.compareTo(right.price));
-    //累加买入委托量
+    // Accumulate buy order volume
     bids.reversed.forEach((item) {
       amount += item.vol;
       item.vol = amount;
@@ -83,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     amount = 0.0;
     asks.sort((left, right) => left.price.compareTo(right.price));
-    //累加卖出委托量
+    // Accumulate sell order volume
     asks.forEach((item) {
       amount += item.vol;
       item.vol = amount;
@@ -192,13 +192,13 @@ class _MyHomePageState extends State<MyHomePage> {
         }),
         button("Change PriceTextPaint",
             onPressed: () => setState(() {
-              _priceLeft = !_priceLeft;
-              if (_priceLeft) {
-                _verticalTextAlignment = VerticalTextAlignment.left;
-              } else {
-                _verticalTextAlignment = VerticalTextAlignment.right;
-              }
-            })),
+                  _priceLeft = !_priceLeft;
+                  if (_priceLeft) {
+                    _verticalTextAlignment = VerticalTextAlignment.left;
+                  } else {
+                    _verticalTextAlignment = VerticalTextAlignment.right;
+                  }
+                })),
       ],
     );
   }

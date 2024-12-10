@@ -6,6 +6,7 @@ import '../k_chart_widget.dart' show MainState;
 import 'base_chart_renderer.dart';
 
 enum VerticalTextAlignment { left, right }
+
 //For TrendLine
 double? trendLineMax;
 double? trendLineScale;
@@ -41,7 +42,8 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       this.chartStyle,
       this.chartColors,
       this.scaleX,
-      this.verticalTextAlignment, this.decimalSeparator,
+      this.verticalTextAlignment,
+      this.decimalSeparator,
       this.decimalPlaces,
       [this.maDayList = const [5, 10, 20]])
       : super(
@@ -83,15 +85,18 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
         children: [
           if (data.up != 0)
             TextSpan(
-                text: "BOLL: ${format(NumberUtil.formatBigDecimal(data.mb ?? 0).toString(), decimalSeparator, decimal: decimalPlaces)}  ",
+                text:
+                    "BOLL: ${format(NumberUtil.formatBigDecimal(data.mb ?? 0).toString(), decimalSeparator, decimal: decimalPlaces)}  ",
                 style: getTextStyle(this.chartColors.ma5Color)),
           if (data.mb != 0)
             TextSpan(
-                text: "UB: ${format(NumberUtil.formatBigDecimal(data.up ?? 0).toString(), decimalSeparator, decimal: decimalPlaces)}  ",
+                text:
+                    "UB: ${format(NumberUtil.formatBigDecimal(data.up ?? 0).toString(), decimalSeparator, decimal: decimalPlaces)}  ",
                 style: getTextStyle(this.chartColors.ma10Color)),
           if (data.dn != 0)
             TextSpan(
-                text: "LB: ${format(NumberUtil.formatBigDecimal(data.dn ?? 0).toString(), decimalSeparator, decimal: decimalPlaces)}  ",
+                text:
+                    "LB: ${format(NumberUtil.formatBigDecimal(data.dn ?? 0).toString(), decimalSeparator, decimal: decimalPlaces)}  ",
                 style: getTextStyle(this.chartColors.ma30Color)),
         ],
       );
@@ -107,7 +112,8 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     for (int i = 0; i < (data.maValueList?.length ?? 0); i++) {
       if (data.maValueList?[i] != 0) {
         var item = TextSpan(
-            text: "MA${maDayList[i]}: ${format(NumberUtil.formatBigDecimal(data.maValueList![i]).toString(), decimalSeparator, decimal: decimalPlaces)}  ",
+            text:
+                "MA${maDayList[i]}: ${format(NumberUtil.formatBigDecimal(data.maValueList![i]).toString(), decimalSeparator, decimal: decimalPlaces)}  ",
             style: getTextStyle(this.chartColors.getMAColor(i)));
         result.add(item);
       }
@@ -159,7 +165,10 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
       tileMode: TileMode.clamp,
-      colors: [this.chartColors.lineFillColor, this.chartColors.lineFillInsideColor],
+      colors: [
+        this.chartColors.lineFillColor,
+        this.chartColors.lineFillInsideColor
+      ],
     ).createShader(Rect.fromLTRB(
         chartRect.left, chartRect.top, chartRect.right, chartRect.bottom));
     mLineFillPaint..shader = mLineFillShader;
@@ -210,14 +219,23 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     }
   }
 
-  void drawCandle(CandleEntity curPoint, Canvas canvas, double curX) {
+  void drawCandle(CandleEntity curPoint, Canvas canvas, double curX,
+      {bool isBuyMarker = true, bool isSellMarker = true}) {
     var high = getY(curPoint.high);
     var low = getY(curPoint.low);
     var open = getY(curPoint.open);
     var close = getY(curPoint.close);
     double r = mCandleWidth / 2;
     double lineR = mCandleLineWidth / 2;
-    if (open >= close) {
+
+    // Margin between candle and marker
+    double markerMargin = 10; // Adjust this value to increase/decrease margin
+    double markerSize =
+        16; // Adjust this value to increase/decrease marker size
+
+    bool isUpCandle = open >= close;
+
+    if (isUpCandle) {
       // 实体高度>= CandleLineWidth
       if (open - close < mCandleLineWidth) {
         open = close + mCandleLineWidth;
@@ -227,7 +245,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
           Rect.fromLTRB(curX - r, close, curX + r, open), chartPaint);
       canvas.drawRect(
           Rect.fromLTRB(curX - lineR, high, curX + lineR, low), chartPaint);
-    } else if (close > open) {
+    } else {
       // 实体高度>= CandleLineWidth
       if (close - open < mCandleLineWidth) {
         open = close - mCandleLineWidth;
@@ -238,14 +256,184 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       canvas.drawRect(
           Rect.fromLTRB(curX - lineR, high, curX + lineR, low), chartPaint);
     }
+
+    scaleX = 1.2;
+
+    // Buy marker at the top with margin
+    if (isBuyMarker) {
+      Paint buyMarkerPaint = Paint()
+        ..color = Color(0xFF00D7B8) // Teal color
+        ..style = PaintingStyle.fill;
+
+      Rect buyMarkerRect = Rect.fromLTRB(
+          curX - markerSize / 2 / scaleX, // Adjust X to center the marker
+          low + markerMargin,
+          curX + markerSize / 2 / scaleX,
+          low + markerMargin + markerSize / scaleX);
+
+      // Draw marker shadow
+      canvas.drawRRect(
+          RRect.fromRectAndRadius(
+              buyMarkerRect
+                  .shift(Offset(2 / scaleX, 2 / scaleX)), // Shift the shadow
+              Radius.circular(4 / scaleX)),
+          Paint()
+            ..color = Colors.black.withOpacity(0.3) // Shadow color and opacity
+            ..maskFilter =
+                MaskFilter.blur(BlurStyle.normal, 4 / scaleX) // Shadow blur
+          );
+
+      // Draw triangle pointing to the candle stick
+      Path trianglePath = Path();
+      trianglePath.moveTo(curX, low + markerMargin * 0.6 - scaleX); // Top point
+      trianglePath.lineTo(curX - markerSize / 2 / scaleX,
+          low + markerMargin + 5 / scaleX); // Left point
+      trianglePath.lineTo(curX + markerSize / 2 / scaleX,
+          low + markerMargin + 5 / scaleX); // Right point
+      trianglePath.close();
+
+      Paint trianglePaint = Paint()
+        ..color = Color(0xFF00D7B8) // Same color as the buy marker
+        ..style = PaintingStyle.fill;
+
+      canvas.drawPath(trianglePath, trianglePaint);
+
+      // Draw the marker
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(buyMarkerRect, Radius.circular(4 / scaleX)),
+        buyMarkerPaint,
+      );
+
+      // Draw 'B' text
+      TextPainter textPainter = TextPainter(
+          text: TextSpan(
+              text: 'B',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: markerSize *
+                      0.7 /
+                      scaleX, // Adjust text size relative to marker size
+                  fontWeight: FontWeight.bold)),
+          textDirection: TextDirection.ltr)
+        ..layout(minWidth: 0, maxWidth: markerSize / scaleX);
+
+      textPainter.paint(
+          canvas,
+          Offset(
+              curX - textPainter.width / 2,
+              buyMarkerRect.top +
+                  (markerSize / scaleX - textPainter.height) /
+                      2) // Center the text within the marker
+          );
+    }
+
+    // Sell marker at the bottom with margin
+    if (isSellMarker) {
+      Paint sellMarkerPaint = Paint()
+        ..color = Color(0xFFFF0000) // Red color
+        ..style = PaintingStyle.fill;
+
+      Rect sellMarkerRect = Rect.fromLTRB(
+          curX - markerSize / 2 / scaleX, // Adjust X to center the marker
+          high - markerMargin - markerSize / scaleX,
+          curX + markerSize / 2 / scaleX,
+          high - markerMargin);
+
+      // Draw marker shadow
+      canvas.drawRRect(
+          RRect.fromRectAndRadius(
+              sellMarkerRect
+                  .shift(Offset(2 / scaleX, 2 / scaleX)), // Shift the shadow
+              Radius.circular(4 / scaleX)),
+          Paint()
+            ..color = Colors.black.withOpacity(0.3) // Shadow color and opacity
+            ..maskFilter =
+                MaskFilter.blur(BlurStyle.normal, 4 / scaleX) // Shadow blur
+          );
+
+      // Draw triangle pointing to the candle stick
+      Path trianglePath = Path();
+      trianglePath.moveTo(
+          curX, high - markerMargin * 0.6 + scaleX); // Bottom point
+      trianglePath.lineTo(curX - markerSize / 2 / scaleX,
+          high - markerMargin - 5 / scaleX); // Left point
+      trianglePath.lineTo(curX + markerSize / 2 / scaleX,
+          high - markerMargin - 5 / scaleX); // Right point
+      trianglePath.close();
+
+      Paint trianglePaint = Paint()
+        ..color = Color(0xFFFF0000) // Same color as the sell marker
+        ..style = PaintingStyle.fill;
+
+      canvas.drawPath(trianglePath, trianglePaint);
+
+      // Draw the marker
+      canvas.drawRRect(
+          RRect.fromRectAndRadius(sellMarkerRect, Radius.circular(4 / scaleX)),
+          sellMarkerPaint);
+
+      // Draw 'S' text
+      TextPainter textPainter = TextPainter(
+          text: TextSpan(
+              text: 'S',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: markerSize *
+                      0.7 /
+                      scaleX, // Adjust text size relative to marker size
+                  fontWeight: FontWeight.bold)),
+          textDirection: TextDirection.ltr)
+        ..layout(minWidth: 0, maxWidth: markerSize / scaleX);
+
+      textPainter.paint(
+          canvas,
+          Offset(
+              curX - textPainter.width / 2,
+              sellMarkerRect.top +
+                  (markerSize / scaleX - textPainter.height) /
+                      2) // Center the text within the marker
+          );
+    }
   }
+  // void drawCandle(CandleEntity curPoint, Canvas canvas, double curX) {
+  //   var high = getY(curPoint.high);
+  //   var low = getY(curPoint.low);
+  //   var open = getY(curPoint.open);
+  //   var close = getY(curPoint.close);
+  //   double r = mCandleWidth / 2;
+  //   double lineR = mCandleLineWidth / 2;
+  //   if (open >= close) {
+  //     // 实体高度>= CandleLineWidth
+  //     if (open - close < mCandleLineWidth) {
+  //       open = close + mCandleLineWidth;
+  //     }
+  //     chartPaint.color = this.chartColors.upColor;
+  //     canvas.drawRect(
+  //         Rect.fromLTRB(curX - r, close, curX + r, open), chartPaint);
+  //     canvas.drawRect(
+  //         Rect.fromLTRB(curX - lineR, high, curX + lineR, low), chartPaint);
+  //   } else if (close > open) {
+  //     // 实体高度>= CandleLineWidth
+  //     if (close - open < mCandleLineWidth) {
+  //       open = close - mCandleLineWidth;
+  //     }
+  //     chartPaint.color = this.chartColors.dnColor;
+  //     canvas.drawRect(
+  //         Rect.fromLTRB(curX - r, open, curX + r, close), chartPaint);
+  //     canvas.drawRect(
+  //         Rect.fromLTRB(curX - lineR, high, curX + lineR, low), chartPaint);
+  //   }
+  // }
 
   @override
   void drawVerticalText(canvas, textStyle, int gridRows) {
     double rowSpace = chartRect.height / gridRows;
     for (var i = 0; i <= gridRows; ++i) {
       double value = (gridRows - i) * rowSpace / scaleY + minValue;
-      TextSpan span = TextSpan(text: "${format(NumberUtil.formatBigDecimal(value).toString(), decimalSeparator, decimal: decimalPlaces)}", style: textStyle);
+      TextSpan span = TextSpan(
+          text:
+              "${format(NumberUtil.formatBigDecimal(value).toString(), decimalSeparator, decimal: decimalPlaces)}",
+          style: textStyle);
       TextPainter tp =
           TextPainter(text: span, textDirection: TextDirection.ltr);
       tp.layout();

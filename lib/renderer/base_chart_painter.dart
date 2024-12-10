@@ -176,27 +176,28 @@ abstract class BaseChartPainter extends CustomPainter {
 
   void initChartRenderer();
 
-  //画背景
+  // Draw background
   void drawBg(Canvas canvas, Size size);
 
-  //画网格
+  // Draw grid
   void drawGrid(canvas);
 
-  //画图表
+  // Draw chart
   void drawChart(Canvas canvas, Size size);
 
-  //画右边值
+  // Draw right side values
   void drawVerticalText(canvas);
 
-  //画时间
+  // Draw date
   void drawDate(Canvas canvas, Size size);
 
-  //画值
+  // Draw values
   void drawText(Canvas canvas, KLineEntity data, double x);
 
-  //画最大最小值
+  // Draw maximum and minimum values
   void drawMaxAndMin(Canvas canvas);
 
+  /// Draws the current price on the chart.
   //画当前价格
   void drawNowPrice(Canvas canvas);
 
