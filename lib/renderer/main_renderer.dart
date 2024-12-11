@@ -257,75 +257,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
           Rect.fromLTRB(curX - lineR, high, curX + lineR, low), chartPaint);
     }
 
-    scaleX = 1.2;
-
-    // Buy marker at the top with margin
-    if (isBuyMarker) {
-      Paint buyMarkerPaint = Paint()
-        ..color = Color(0xFF00D7B8) // Teal color
-        ..style = PaintingStyle.fill;
-
-      Rect buyMarkerRect = Rect.fromLTRB(
-          curX - markerSize / 2 / scaleX, // Adjust X to center the marker
-          low + markerMargin,
-          curX + markerSize / 2 / scaleX,
-          low + markerMargin + markerSize / scaleX);
-
-      // Draw marker shadow
-      canvas.drawRRect(
-          RRect.fromRectAndRadius(
-              buyMarkerRect
-                  .shift(Offset(2 / scaleX, 2 / scaleX)), // Shift the shadow
-              Radius.circular(4 / scaleX)),
-          Paint()
-            ..color = Colors.black.withOpacity(0.3) // Shadow color and opacity
-            ..maskFilter =
-                MaskFilter.blur(BlurStyle.normal, 4 / scaleX) // Shadow blur
-          );
-
-      // Draw triangle pointing to the candle stick
-      Path trianglePath = Path();
-      trianglePath.moveTo(curX, low + markerMargin * 0.6 - scaleX); // Top point
-      trianglePath.lineTo(curX - markerSize / 2 / scaleX,
-          low + markerMargin + 5 / scaleX); // Left point
-      trianglePath.lineTo(curX + markerSize / 2 / scaleX,
-          low + markerMargin + 5 / scaleX); // Right point
-      trianglePath.close();
-
-      Paint trianglePaint = Paint()
-        ..color = Color(0xFF00D7B8) // Same color as the buy marker
-        ..style = PaintingStyle.fill;
-
-      canvas.drawPath(trianglePath, trianglePaint);
-
-      // Draw the marker
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(buyMarkerRect, Radius.circular(4 / scaleX)),
-        buyMarkerPaint,
-      );
-
-      // Draw 'B' text
-      TextPainter textPainter = TextPainter(
-          text: TextSpan(
-              text: 'B',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: markerSize *
-                      0.7 /
-                      scaleX, // Adjust text size relative to marker size
-                  fontWeight: FontWeight.bold)),
-          textDirection: TextDirection.ltr)
-        ..layout(minWidth: 0, maxWidth: markerSize / scaleX);
-
-      textPainter.paint(
-          canvas,
-          Offset(
-              curX - textPainter.width / 2,
-              buyMarkerRect.top +
-                  (markerSize / scaleX - textPainter.height) /
-                      2) // Center the text within the marker
-          );
-    }
+    // scaleX = 1.0891773678104961;
 
     // Sell marker at the bottom with margin
     if (isSellMarker) {
@@ -343,10 +275,10 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       canvas.drawRRect(
           RRect.fromRectAndRadius(
               sellMarkerRect
-                  .shift(Offset(2 / scaleX, 2 / scaleX)), // Shift the shadow
+                  .shift(Offset(-2 / scaleX, 2 / scaleX)), // Shift the shadow
               Radius.circular(4 / scaleX)),
           Paint()
-            ..color = Colors.black.withOpacity(0.3) // Shadow color and opacity
+            ..color = Colors.black.withOpacity(0.53) // Shadow color and opacity
             ..maskFilter =
                 MaskFilter.blur(BlurStyle.normal, 4 / scaleX) // Shadow blur
           );
@@ -390,6 +322,74 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
           Offset(
               curX - textPainter.width / 2,
               sellMarkerRect.top +
+                  (markerSize / scaleX - textPainter.height) /
+                      2) // Center the text within the marker
+          );
+    }
+
+    // Buy marker at the top with margin
+    if (isBuyMarker) {
+      Paint buyMarkerPaint = Paint()
+        ..color = Color(0xFF00D7B8) // Teal color
+        ..style = PaintingStyle.fill;
+
+      Rect buyMarkerRect = Rect.fromLTRB(
+          curX - markerSize / 2 / scaleX, // Adjust X to center the marker
+          low + markerMargin,
+          curX + markerSize / 2 / scaleX,
+          low + markerMargin + markerSize / scaleX);
+
+      // Draw marker shadow
+      canvas.drawRRect(
+          RRect.fromRectAndRadius(
+              buyMarkerRect
+                  .shift(Offset(-2 / scaleX, 2 / scaleX)), // Shift the shadow
+              Radius.circular(4 / scaleX)),
+          Paint()
+            ..color = Colors.black.withOpacity(0.53) // Shadow color and opacity
+            ..maskFilter =
+                MaskFilter.blur(BlurStyle.normal, 4 / scaleX) // Shadow blur
+          );
+
+      // Draw triangle pointing to the candle stick
+      Path trianglePath = Path();
+      trianglePath.moveTo(curX, low + markerMargin * 0.6 - scaleX); // Top point
+      trianglePath.lineTo(curX - markerSize / 2 / scaleX,
+          low + markerMargin + 5 / scaleX); // Left point
+      trianglePath.lineTo(curX + markerSize / 2 / scaleX,
+          low + markerMargin + 5 / scaleX); // Right point
+      trianglePath.close();
+
+      Paint trianglePaint = Paint()
+        ..color = Color(0xFF00D7B8) // Same color as the buy marker
+        ..style = PaintingStyle.fill;
+
+      canvas.drawPath(trianglePath, trianglePaint);
+
+      // Draw the marker
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(buyMarkerRect, Radius.circular(4 / scaleX)),
+        buyMarkerPaint,
+      );
+
+      // Draw 'B' text
+      TextPainter textPainter = TextPainter(
+          text: TextSpan(
+              text: 'B',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: markerSize *
+                      0.7 /
+                      scaleX, // Adjust text size relative to marker size
+                  fontWeight: FontWeight.bold)),
+          textDirection: TextDirection.ltr)
+        ..layout(minWidth: 0, maxWidth: markerSize / scaleX);
+
+      textPainter.paint(
+          canvas,
+          Offset(
+              curX - textPainter.width / 2,
+              buyMarkerRect.top +
                   (markerSize / scaleX - textPainter.height) /
                       2) // Center the text within the marker
           );
