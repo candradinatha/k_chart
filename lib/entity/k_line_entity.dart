@@ -10,6 +10,8 @@ class KLineEntity extends KEntity {
   double? change;
   double? ratio;
   int? time;
+  bool? isBuy = false;
+  bool? isSell = false;
 
   KLineEntity.fromCustom({
     this.amount,
@@ -21,6 +23,8 @@ class KLineEntity extends KEntity {
     required this.high,
     required this.low,
     required this.vol,
+    this.isBuy,
+    this.isSell,
   });
 
   KLineEntity.fromJson(Map<String, dynamic> json) {
@@ -39,6 +43,8 @@ class KLineEntity extends KEntity {
     time = tempTime;
     ratio = json['ratio']?.toDouble();
     change = json['change']?.toDouble();
+    isBuy = false;
+    isSell = false;
   }
 
   Map<String, dynamic> toJson() {
@@ -52,11 +58,13 @@ class KLineEntity extends KEntity {
     data['amount'] = this.amount;
     data['ratio'] = this.ratio;
     data['change'] = this.change;
+    data['isBuy'] = this.isBuy;
+    data['isSell'] = this.isSell;
     return data;
   }
 
   @override
   String toString() {
-    return 'MarketModel{open: $open, high: $high, low: $low, close: $close, vol: $vol, time: $time, amount: $amount, ratio: $ratio, change: $change}';
+    return 'MarketModel{open: $open, high: $high, low: $low, close: $close, vol: $vol, time: $time, amount: $amount, ratio: $ratio, change: $change, isBuy: $isBuy, isSell: $isSell}';
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -116,6 +117,8 @@ class _MyHomePageState extends State<MyHomePage> {
               volHidden: _volHidden,
               secondaryState: _secondaryState,
               fixedLength: 2,
+              isShowBuyMarks: true,
+              isShowSellMarks: true,
               timeFormat: TimeFormat.YEAR_MONTH_DAY_WITH_HOUR,
               translations: kChartTranslations,
               showNowPrice: _showNowPrice,
@@ -269,6 +272,23 @@ class _MyHomePageState extends State<MyHomePage> {
         .reversed
         .toList()
         .cast<KLineEntity>();
+    List<KLineEntity> dat = [];
+    datas?.forEach((element) {
+      var randomBuy = Random().nextInt(2);
+      var randomSell = Random().nextInt(2);
+      var el = element;
+      if (randomBuy == 1) {
+        el.isBuy = true;
+      }
+      if (randomSell == 1) {
+        el.isSell = true;
+      }
+      dat.add(el);
+    });
+
+    datas?.clear();
+    datas?.addAll(dat);
+
     DataUtil.calculate(datas!);
     showLoading = false;
     setState(() {});

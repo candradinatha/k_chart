@@ -51,6 +51,8 @@ class ChartPainter extends BaseChartPainter {
   final String decimalSeparator;
   final int? decimalPlaces;
   final Color onHoverShadowColor;
+  bool isShowBuyMarks = false;
+  bool isShowSellMarks = false;
 
   ChartPainter(
     this.chartStyle,
@@ -79,6 +81,8 @@ class ChartPainter extends BaseChartPainter {
     this.showNowPrice = true,
     this.fixedLength = 2,
     this.maDayList = const [5, 10, 20],
+    this.isShowBuyMarks = false,
+    this.isShowSellMarks = false,
   }) : super(chartStyle,
             datas: datas,
             scaleX: scaleX,
@@ -359,7 +363,22 @@ class ChartPainter extends BaseChartPainter {
 
   @override
   void drawMaxAndMin(Canvas canvas) {
-    if (isLine == true) return;
+    if (isLine == true) {
+      if (isShowBuyMarks && isShowSellMarks) {
+        for (int i = mStartIndex; datas != null && i <= mStopIndex; i++) {
+          double x = translateXtoX(getX(i));
+          double currY = getMainY(datas![i].close);
+          bool thereIsBuy = datas![i].isBuy ?? false;
+          bool thereIsSell = datas![i].isSell ?? false;
+
+          if (isShowSellMarks && thereIsSell)
+            _drawSellMarker(canvas, x, currY - 16);
+          if (isShowBuyMarks && thereIsBuy)
+            _drawBuyMarker(canvas, x, currY + 16);
+        }
+      }
+      return;
+    }
     double lineSize = 20;
     double lineToTextOffset = 5;
 
@@ -441,6 +460,7 @@ class ChartPainter extends BaseChartPainter {
           y - tp.height / 2,
         ),
       );
+      // _drawSellMarker(canvas, x - tp.width - lineSize - lineToTextOffset, y);
     } else {
       TextPainter tp = getTextPainter(
         format(
@@ -465,6 +485,145 @@ class ChartPainter extends BaseChartPainter {
         ),
       );
     }
+
+    // for candle
+    if (isShowBuyMarks && isShowSellMarks) {
+      for (int i = mStartIndex; datas != null && i <= mStopIndex; i++) {
+        double x = translateXtoX(getX(i));
+        double highY = getMainY(datas![i].high);
+        double lowY = getMainY(datas![i].low);
+        bool thereIsBuy = datas![i].isBuy ?? false;
+        bool thereIsSell = datas![i].isSell ?? false;
+
+        if (isShowSellMarks && thereIsSell) {
+          _drawSellMarker(canvas, x, highY - 16);
+        }
+        if (isShowBuyMarks && thereIsBuy) {
+          _drawBuyMarker(canvas, x, lowY + 16);
+        }
+      }
+    }
+  }
+
+  void _drawSellMarker(Canvas canvas, double x, double y) {
+    // canvas.save();
+    double markerSize = 16;
+    Paint sellMarkerPaint = Paint()
+      ..color = Color(0xFFFF0000)
+      ..style = PaintingStyle.fill;
+
+    TextPainter textPainter = TextPainter(
+      text: TextSpan(
+        text: 'S',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: markerSize * 0.7,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    Rect markerRect = Rect.fromLTWH(
+      x - markerSize / 2,
+      y - markerSize / 2,
+      markerSize,
+      markerSize,
+    );
+
+    // Draw shadow behind the marker
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        markerRect.shift(Offset(-1, 3)), // Offset the shadow
+        Radius.circular(4),
+      ),
+      Paint()
+        ..color = Colors.black.withOpacity(0.53) // Shadow color
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, 4)
+        ..style = PaintingStyle.fill,
+    );
+
+    Path trianglePath = Path();
+    trianglePath.moveTo(markerRect.center.dx, markerRect.bottom + 4);
+    trianglePath.lineTo(markerRect.left, markerRect.bottom - 5);
+    trianglePath.lineTo(markerRect.right, markerRect.bottom - 5);
+    trianglePath.close();
+
+    canvas.drawPath(trianglePath, sellMarkerPaint);
+
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(markerRect, Radius.circular(4)),
+      sellMarkerPaint,
+    );
+
+    textPainter.paint(
+      canvas,
+      Offset(
+        markerRect.left + (markerRect.width - textPainter.width) / 2,
+        markerRect.top + (markerRect.height - textPainter.height) / 2,
+      ),
+    );
+    // canvas.restore();
+  }
+
+  void _drawBuyMarker(Canvas canvas, double x, double y) {
+    // canvas.save();
+    double markerSize = 16;
+    Paint buyMarkerPaint = Paint()
+      ..color = Color(0xFF00D2B4)
+      ..style = PaintingStyle.fill;
+
+    TextPainter textPainter = TextPainter(
+      text: TextSpan(
+        text: 'B',
+        style: TextStyle(
+          color: Colors.black,
+          fontSize: markerSize * 0.7,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    Rect markerRect = Rect.fromLTWH(
+      x - markerSize / 2,
+      y - markerSize / 2,
+      markerSize,
+      markerSize,
+    );
+
+    // Draw shadow behind the marker
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        markerRect.shift(Offset(-1, 3)), // Offset the shadow
+        Radius.circular(4),
+      ),
+      Paint()
+        ..color = Colors.black.withOpacity(0.53) // Shadow color
+        ..maskFilter = MaskFilter.blur(BlurStyle.normal, 4)
+        ..style = PaintingStyle.fill,
+    );
+
+    Path trianglePath = Path();
+    trianglePath.moveTo(markerRect.center.dx, markerRect.top - 4);
+    trianglePath.lineTo(markerRect.left, markerRect.top + 5);
+    trianglePath.lineTo(markerRect.right, markerRect.top + 5);
+    trianglePath.close();
+    canvas.drawPath(trianglePath, buyMarkerPaint);
+
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(markerRect, Radius.circular(4)),
+      buyMarkerPaint,
+    );
+
+    textPainter.paint(
+      canvas,
+      Offset(
+        markerRect.left + (markerRect.width - textPainter.width) / 2,
+        markerRect.top + (markerRect.height - textPainter.height) / 2,
+      ),
+    );
+    // canvas.restore();
   }
 
   @override

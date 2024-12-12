@@ -27,8 +27,9 @@ abstract class BaseChartPainter extends CustomPainter {
   bool isLongPress = false;
   bool isOnTap;
   bool isLine;
+  bool isShowSellMarks, isShowBuyMarks;
 
-  //3块区域大小与位置
+  // Size and position of the 3 areas
   late Rect mMainRect;
   Rect? mVolRect, mSecondaryRect;
   late double mDisplayHeight, mWidth;
@@ -64,6 +65,8 @@ abstract class BaseChartPainter extends CustomPainter {
     this.isTapShowInfoDialog = false,
     this.secondaryState = SecondaryState.MACD,
     this.isLine = false,
+    this.isShowSellMarks = false,
+    this.isShowBuyMarks = false,
   }) {
     mItemCount = datas?.length ?? 0;
     mPointWidth = this.chartStyle.pointWidth;

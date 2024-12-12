@@ -59,6 +59,9 @@ class KChartWidget extends StatefulWidget {
   final int? decimalPlaces;
   final Color onHoverShadowColor;
 
+  final bool isShowBuyMarks;
+  final bool isShowSellMarks;
+
   KChartWidget(
     this.datas,
     this.chartStyle,
@@ -89,6 +92,8 @@ class KChartWidget extends StatefulWidget {
     this.decimalSeparator = ".",
     this.decimalPlaces,
     this.onHoverShadowColor = const Color(0x80000000),
+    this.isShowBuyMarks = false,
+    this.isShowSellMarks = false,
   });
 
   @override
@@ -164,6 +169,8 @@ class _KChartWidgetState extends State<KChartWidget>
       secondaryState: widget.secondaryState,
       isLine: widget.isLine,
       hideGrid: widget.hideGrid,
+      isShowBuyMarks: true,
+      isShowSellMarks: true,
       showNowPrice: widget.showNowPrice,
       sink: mInfoWindowStream?.sink,
       fixedLength: widget.fixedLength,
