@@ -40,6 +40,8 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _volHidden = false;
   SecondaryState _secondaryState = SecondaryState.MACD;
   bool isLine = true;
+  bool isShowBuyMarks = false;
+  bool isShowSellMarks = true;
   bool isChinese = true;
   bool _hideGrid = false;
   bool _showNowPrice = true;
@@ -55,6 +57,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+
+    // chartStyle.pointWidth = 1;
     getData('1day');
     rootBundle.loadString('assets/depth.json').then((result) {
       final parseJson = json.decode(result);
@@ -117,8 +121,8 @@ class _MyHomePageState extends State<MyHomePage> {
               volHidden: _volHidden,
               secondaryState: _secondaryState,
               fixedLength: 2,
-              isShowBuyMarks: true,
-              isShowSellMarks: true,
+              isShowBuyMarks: isShowBuyMarks,
+              isShowSellMarks: isShowSellMarks,
               timeFormat: TimeFormat.YEAR_MONTH_DAY_WITH_HOUR,
               translations: kChartTranslations,
               showNowPrice: _showNowPrice,
@@ -156,6 +160,11 @@ class _MyHomePageState extends State<MyHomePage> {
       children: <Widget>[
         button("Time Mode", onPressed: () => isLine = true),
         button("K Line Mode", onPressed: () => isLine = false),
+        button("show buy mark: $isShowBuyMarks",
+            onPressed: () => isShowBuyMarks = !isShowBuyMarks),
+        button("show sell mark: $isShowSellMarks", onPressed: () {
+          isShowSellMarks = !isShowSellMarks;
+        }),
         button("TrendLine", onPressed: () => _isTrendLine = !_isTrendLine),
         button("Line:MA", onPressed: () => _mainState = MainState.MA),
         button("Line:BOLL", onPressed: () => _mainState = MainState.BOLL),
@@ -274,8 +283,8 @@ class _MyHomePageState extends State<MyHomePage> {
         .cast<KLineEntity>();
     List<KLineEntity> dat = [];
     datas?.forEach((element) {
-      var randomBuy = Random().nextInt(2);
-      var randomSell = Random().nextInt(2);
+      var randomBuy = Random().nextInt(3);
+      var randomSell = Random().nextInt(3);
       var el = element;
       if (randomBuy == 1) {
         el.isBuy = true;

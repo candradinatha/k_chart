@@ -74,40 +74,40 @@ class ChartStyle {
 
   double childPadding = 12.0;
 
-  //点与点的距离
+  // Distance between points
   double pointWidth = 11.0;
 
-  //蜡烛宽度
+  // Candle width
   double candleWidth = 8.5;
 
-  //蜡烛中间线的宽度
+  // Width of the middle line of the candle
   double candleLineWidth = 1.5;
 
-  //vol柱子宽度
+  // Width of the volume bars
   double volWidth = 8.5;
 
-  //macd柱子宽度
+  // Width of the MACD bars
   double macdWidth = 3.0;
 
-  //垂直交叉线宽度
+  // Width of the vertical cross line
   double vCrossWidth = 8.5;
 
-  //水平交叉线宽度
+  // Width of the horizontal cross line
   double hCrossWidth = 0.5;
 
-  //现在价格的线条长度
+  // Length of the current price line
   double nowPriceLineLength = 1;
 
-  //现在价格的线条间隔
+  // Span of the current price line
   double nowPriceLineSpan = 1;
 
-  //现在价格的线条粗细
+  // Thickness of the current price line
   double nowPriceLineWidth = 1;
 
   int gridRows = 4;
 
   int gridColumns = 4;
 
-  //下方時間客製化
+  // Customization of the bottom time
   List<String>? dateTimeFormat;
 }

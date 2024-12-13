@@ -364,18 +364,18 @@ class ChartPainter extends BaseChartPainter {
   @override
   void drawMaxAndMin(Canvas canvas) {
     if (isLine == true) {
-      if (isShowBuyMarks && isShowSellMarks) {
-        for (int i = mStartIndex; datas != null && i <= mStopIndex; i++) {
-          double x = translateXtoX(getX(i));
-          double currY = getMainY(datas![i].close);
-          bool thereIsBuy = datas![i].isBuy ?? false;
-          bool thereIsSell = datas![i].isSell ?? false;
+      if (!isShowBuyMarks && !isShowSellMarks) {
+        return;
+      }
+      for (int i = mStartIndex; datas != null && i <= mStopIndex; i++) {
+        double x = translateXtoX(getX(i));
+        double currY = getMainY(datas![i].close);
+        bool thereIsBuy = datas![i].isBuy ?? false;
+        bool thereIsSell = datas![i].isSell ?? false;
 
-          if (isShowSellMarks && thereIsSell)
-            _drawSellMarker(canvas, x, currY - 16);
-          if (isShowBuyMarks && thereIsBuy)
-            _drawBuyMarker(canvas, x, currY + 16);
-        }
+        if (isShowSellMarks && thereIsSell)
+          _drawSellMarker(canvas, x, currY - 16);
+        if (isShowBuyMarks && thereIsBuy) _drawBuyMarker(canvas, x, currY + 16);
       }
       return;
     }
@@ -487,20 +487,21 @@ class ChartPainter extends BaseChartPainter {
     }
 
     // for candle
-    if (isShowBuyMarks && isShowSellMarks) {
-      for (int i = mStartIndex; datas != null && i <= mStopIndex; i++) {
-        double x = translateXtoX(getX(i));
-        double highY = getMainY(datas![i].high);
-        double lowY = getMainY(datas![i].low);
-        bool thereIsBuy = datas![i].isBuy ?? false;
-        bool thereIsSell = datas![i].isSell ?? false;
+    if (!isShowBuyMarks && !isShowSellMarks) {
+      return;
+    }
+    for (int i = mStartIndex; datas != null && i <= mStopIndex; i++) {
+      double x = translateXtoX(getX(i));
+      double highY = getMainY(datas![i].high);
+      double lowY = getMainY(datas![i].low);
+      bool thereIsBuy = datas![i].isBuy ?? false;
+      bool thereIsSell = datas![i].isSell ?? false;
 
-        if (isShowSellMarks && thereIsSell) {
-          _drawSellMarker(canvas, x, highY - 16);
-        }
-        if (isShowBuyMarks && thereIsBuy) {
-          _drawBuyMarker(canvas, x, lowY + 16);
-        }
+      if (isShowSellMarks && thereIsSell) {
+        _drawSellMarker(canvas, x, highY - 16);
+      }
+      if (isShowBuyMarks && thereIsBuy) {
+        _drawBuyMarker(canvas, x, lowY + 16);
       }
     }
   }
