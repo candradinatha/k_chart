@@ -10,6 +10,8 @@ class KLineEntity extends KEntity {
   double? change;
   double? ratio;
   int? time;
+  bool? isSell;
+  bool? isBuy;
 
   KLineEntity.fromCustom({
     this.amount,
@@ -17,6 +19,8 @@ class KLineEntity extends KEntity {
     required this.close,
     this.change,
     this.ratio,
+    this.isSell = false,
+    this.isBuy = false,
     required this.time,
     required this.high,
     required this.low,
@@ -39,6 +43,8 @@ class KLineEntity extends KEntity {
     time = tempTime;
     ratio = json['ratio']?.toDouble();
     change = json['change']?.toDouble();
+    isSell = json['isSell'] ?? false;
+    isBuy = json['isBuy'] ?? false;
   }
 
   Map<String, dynamic> toJson() {

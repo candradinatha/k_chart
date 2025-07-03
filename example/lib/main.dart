@@ -33,11 +33,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<KLineEntity>? datas;
   bool showLoading = true;
-  MainState _mainState = MainState.MA;
-  bool _volHidden = false;
+  MainState _mainState = MainState.NONE;
+  bool _volHidden = true;
   SecondaryState _secondaryState = SecondaryState.MACD;
-  bool isLine = true;
-  bool isChinese = true;
+  bool isLine = false;
+  bool isChinese = false;
   bool _hideGrid = false;
   bool _showNowPrice = true;
   List<DepthEntity>? _bids, _asks;
@@ -125,6 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
               maDayList: [1, 100, 1000],
               decimalSeparator: ",",
               decimalPlaces: 0,
+              isShowMarker: true,
             ),
           ),
           if (showLoading)
@@ -149,8 +150,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return Wrap(
       alignment: WrapAlignment.spaceEvenly,
       children: <Widget>[
-        button("Time Mode", onPressed: () => isLine = true),
-        button("K Line Mode", onPressed: () => isLine = false),
+        button("Time Mode", onPressed: () => isLine = false),
+        button("K Line Mode", onPressed: () => isLine = true),
         button("TrendLine", onPressed: () => _isTrendLine = !_isTrendLine),
         button("Line:MA", onPressed: () => _mainState = MainState.MA),
         button("Line:BOLL", onPressed: () => _mainState = MainState.BOLL),
@@ -192,13 +193,13 @@ class _MyHomePageState extends State<MyHomePage> {
         }),
         button("Change PriceTextPaint",
             onPressed: () => setState(() {
-              _priceLeft = !_priceLeft;
-              if (_priceLeft) {
-                _verticalTextAlignment = VerticalTextAlignment.left;
-              } else {
-                _verticalTextAlignment = VerticalTextAlignment.right;
-              }
-            })),
+                  _priceLeft = !_priceLeft;
+                  if (_priceLeft) {
+                    _verticalTextAlignment = VerticalTextAlignment.left;
+                  } else {
+                    _verticalTextAlignment = VerticalTextAlignment.right;
+                  }
+                })),
       ],
     );
   }
@@ -261,12 +262,16 @@ class _MyHomePageState extends State<MyHomePage> {
   void solveChatData(String result) {
     final Map parseJson = json.decode(result) as Map<dynamic, dynamic>;
     final list = parseJson['data'] as List<dynamic>;
-    datas = list
-        .map((item) => KLineEntity.fromJson(item as Map<String, dynamic>))
-        .toList()
-        .reversed
-        .toList()
-        .cast<KLineEntity>();
+    List<KLineEntity> entities = [];
+    for (var a = 0; a < list.length; a++) {
+      KLineEntity entity =
+          KLineEntity.fromJson(list[a] as Map<String, dynamic>);
+      entity.isBuy = a % 3 == 0;
+      entity.isSell = a % 3 == 1;
+
+      entities.add(entity);
+    }
+    datas = entities.reversed.toList();
     DataUtil.calculate(datas!);
     showLoading = false;
     setState(() {});

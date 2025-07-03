@@ -35,6 +35,7 @@ class ChartPainter extends BaseChartPainter {
   static get maxScrollX => BaseChartPainter.maxScrollX;
   late BaseChartRenderer mMainRenderer;
   BaseChartRenderer? mVolRenderer, mSecondaryRenderer;
+  MainRenderer? mMarkerRenderer;
   StreamSink<InfoWindowEntity?>? sink;
   Color? upColor, dnColor;
   Color? ma5Color, ma10Color, ma30Color;
@@ -51,6 +52,8 @@ class ChartPainter extends BaseChartPainter {
   final String decimalSeparator;
   final int? decimalPlaces;
   final Color onHoverShadowColor;
+  final bool isShowMarker;
+  final MarkerStyle markerStyle;
 
   ChartPainter(
     this.chartStyle,
@@ -68,8 +71,8 @@ class ChartPainter extends BaseChartPainter {
     isTapShowInfoDialog,
     required this.verticalTextAlignment,
     required this.decimalSeparator,
-        required this.onHoverShadowColor,
-        this.decimalPlaces,
+    required this.onHoverShadowColor,
+    this.decimalPlaces,
     mainState,
     volHidden,
     secondaryState,
@@ -79,6 +82,8 @@ class ChartPainter extends BaseChartPainter {
     this.showNowPrice = true,
     this.fixedLength = 2,
     this.maDayList = const [5, 10, 20],
+    this.isShowMarker = false,
+    this.markerStyle = const MarkerStyle(),
   }) : super(chartStyle,
             datas: datas,
             scaleX: scaleX,
@@ -130,8 +135,15 @@ class ChartPainter extends BaseChartPainter {
       maDayList,
     );
     if (mVolRect != null) {
-      mVolRenderer = VolRenderer(mVolRect!, mVolMaxValue, mVolMinValue,
-          mChildPadding, fixedLength, this.chartStyle, this.chartColors, this.decimalSeparator);
+      mVolRenderer = VolRenderer(
+          mVolRect!,
+          mVolMaxValue,
+          mVolMinValue,
+          mChildPadding,
+          fixedLength,
+          this.chartStyle,
+          this.chartColors,
+          this.decimalSeparator);
     }
     if (mSecondaryRect != null) {
       mSecondaryRenderer = SecondaryRenderer(
@@ -144,6 +156,24 @@ class ChartPainter extends BaseChartPainter {
         chartStyle,
         chartColors,
         decimalSeparator,
+      );
+    }
+
+    if (mMarkerRenderer == null) {
+      mMarkerRenderer = MainRenderer(
+        mMainRect,
+        mMainMaxValue,
+        mMainMinValue,
+        mTopPadding,
+        mainState,
+        isLine,
+        fixedLength,
+        this.chartStyle,
+        this.chartColors,
+        this.scaleX,
+        verticalTextAlignment,
+        decimalSeparator,
+        decimalPlaces,
       );
     }
   }
@@ -203,6 +233,29 @@ class ChartPainter extends BaseChartPainter {
 
       mMainRenderer.drawChart(lastPoint, curPoint, lastX, curX, size, canvas);
       mVolRenderer?.drawChart(lastPoint, curPoint, lastX, curX, size, canvas);
+      if (isShowMarker) {
+        if (curPoint.isBuy == true)
+          mMarkerRenderer?.drawBuy(
+            lastPoint,
+            curPoint,
+            lastX,
+            curX,
+            size,
+            canvas,
+            markerStyle,
+          );
+
+        if (curPoint.isSell == true)
+          mMarkerRenderer?.drawSell(
+            lastPoint,
+            curPoint,
+            lastX,
+            curX,
+            size,
+            canvas,
+            markerStyle,
+          );
+      }
       mSecondaryRenderer?.drawChart(
           lastPoint, curPoint, lastX, curX, size, canvas);
     }
@@ -269,7 +322,10 @@ class ChartPainter extends BaseChartPainter {
     var index = calculateSelectedX(selectX);
     KLineEntity point = getItem(index);
 
-    TextPainter tp = getTextPainter(NumberUtil.format(point.close.toString(), decimalSeparator, decimal: decimalPlaces), chartColors.crossTextColor);
+    TextPainter tp = getTextPainter(
+        NumberUtil.format(point.close.toString(), decimalSeparator,
+            decimal: decimalPlaces),
+        chartColors.crossTextColor);
     double textHeight = tp.height;
     double textWidth = tp.width;
 
@@ -363,7 +419,8 @@ class ChartPainter extends BaseChartPainter {
     if (x < mWidth / 2) {
       //画右边
       TextPainter tp = getTextPainter(
-        format(mMainLowMinValue.toString(), decimalSeparator, decimal: decimalPlaces),
+        format(mMainLowMinValue.toString(), decimalSeparator,
+            decimal: decimalPlaces),
         chartColors.minColor,
       );
 
@@ -382,7 +439,11 @@ class ChartPainter extends BaseChartPainter {
       );
     } else {
       TextPainter tp = getTextPainter(
-        format(mMainLowMinValue.toString(), decimalSeparator, decimal: decimalPlaces,),
+        format(
+          mMainLowMinValue.toString(),
+          decimalSeparator,
+          decimal: decimalPlaces,
+        ),
         chartColors.minColor,
       );
 
@@ -405,7 +466,11 @@ class ChartPainter extends BaseChartPainter {
     if (x < mWidth / 2) {
       //画右边
       TextPainter tp = getTextPainter(
-        format(mMainHighMaxValue.toString(), decimalSeparator, decimal: decimalPlaces,),
+        format(
+          mMainHighMaxValue.toString(),
+          decimalSeparator,
+          decimal: decimalPlaces,
+        ),
         chartColors.maxColor,
       );
 
@@ -424,7 +489,11 @@ class ChartPainter extends BaseChartPainter {
       );
     } else {
       TextPainter tp = getTextPainter(
-        format(mMainHighMaxValue.toString(), decimalSeparator, decimal: decimalPlaces,),
+        format(
+          mMainHighMaxValue.toString(),
+          decimalSeparator,
+          decimal: decimalPlaces,
+        ),
         chartColors.maxColor,
       );
 
@@ -484,19 +553,21 @@ class ChartPainter extends BaseChartPainter {
     }
     //再画背景和文本
     TextPainter tp = getTextPainter(
-        format(value.toString(), decimalSeparator, decimal: decimalPlaces,),
+        format(
+          value.toString(),
+          decimalSeparator,
+          decimal: decimalPlaces,
+        ),
         value >= datas!.last.open
             ? this.chartColors.nowPriceUpTextColor
             : this.chartColors.nowPriceDnTextColor,
-      customStyle: TextStyle(
-        fontSize: 10,
-        fontFamily: 'Gilroy',
-        fontWeight: FontWeight.w700,
-        color: value >= datas!.last.open
-            ? this.chartColors.nowPriceUpTextColor
-            : this.chartColors.nowPriceDnTextColor
-      )
-    );
+        customStyle: TextStyle(
+            fontSize: 10,
+            fontFamily: 'Gilroy',
+            fontWeight: FontWeight.w700,
+            color: value >= datas!.last.open
+                ? this.chartColors.nowPriceUpTextColor
+                : this.chartColors.nowPriceDnTextColor));
 
     double offsetX;
     switch (verticalTextAlignment) {
@@ -510,7 +581,10 @@ class ChartPainter extends BaseChartPainter {
 
     double top = y - tp.height / 2;
     canvas.drawRRect(
-        RRect.fromRectAndRadius(Rect.fromLTRB(offsetX -2, top -2, offsetX + tp.width + 2, top + tp.height + 2), Radius.circular(4.0)),
+        RRect.fromRectAndRadius(
+            Rect.fromLTRB(offsetX - 2, top - 2, offsetX + tp.width + 2,
+                top + tp.height + 2),
+            Radius.circular(4.0)),
         nowPricePaint);
     tp.paint(canvas, Offset(offsetX, top));
   }
@@ -571,7 +645,6 @@ class ChartPainter extends BaseChartPainter {
     }
   }
 
-
   void drawOverlay(Canvas canvas, Size size) {
     // Membuat kuas untuk menggambar kotak
     final paint = Paint()
@@ -585,12 +658,13 @@ class ChartPainter extends BaseChartPainter {
     double gap = this.chartStyle.vCrossWidth / 2;
 
     double xLeft = 0;
-    double xRight = getX(index +1);
-
+    double xRight = getX(index + 1);
 
     // Mendefinisikan kotak
-    final rect = Rect.fromLTWH(xLeft, 0, x - gap, size.height); // (x, y, lebar, tinggi)
-    final rect2 = Rect.fromLTWH(xRight - 5, 0, size.width - gap, size.height); // (x, y, lebar, tinggi)
+    final rect =
+        Rect.fromLTWH(xLeft, 0, x - gap, size.height); // (x, y, lebar, tinggi)
+    final rect2 = Rect.fromLTWH(
+        xRight - 5, 0, size.width - gap, size.height); // (x, y, lebar, tinggi)
 
     // Menggambar kotak di canvas
     canvas.drawRect(rect, paint);
@@ -635,7 +709,8 @@ class ChartPainter extends BaseChartPainter {
     if (color == null) {
       color = this.chartColors.defaultTextColor;
     }
-    TextSpan span = TextSpan(text: "$text", style: customStyle ?? getTextStyle(color));
+    TextSpan span =
+        TextSpan(text: "$text", style: customStyle ?? getTextStyle(color));
     TextPainter tp = TextPainter(text: span, textDirection: TextDirection.ltr);
     tp.layout();
     return tp;
@@ -656,5 +731,53 @@ class ChartPainter extends BaseChartPainter {
   /// 点是否在MainRect中
   bool isInMainRect(Offset point) {
     return mMainRect.contains(point);
+  }
+}
+
+class MarkerStyle {
+  const MarkerStyle({
+    this.isShowSellMarks = false,
+    this.isShowBuyMarks = false,
+    this.sellMarkColor = const Color(0xFFFF0000),
+    this.buyMarkColor = const Color(0xFF00D2B4),
+    this.sellMarkMargin = 16.0,
+    this.buyMarkMargin = 16.0,
+    this.markerSize = 16.0,
+    this.markerBuyTextStyle,
+    this.markerSellTextStyle,
+  });
+
+  final bool isShowSellMarks;
+  final bool isShowBuyMarks;
+  final Color sellMarkColor;
+  final Color buyMarkColor;
+  final double sellMarkMargin;
+  final double buyMarkMargin;
+  final double markerSize;
+  final TextStyle? markerSellTextStyle;
+  final TextStyle? markerBuyTextStyle;
+
+  MarkerStyle copyWith({
+    bool? isShowSellMarks,
+    bool? isShowBuyMarks,
+    Color? sellMarkColor,
+    Color? buyMarkColor,
+    double? sellMarkMargin,
+    double? buyMarkMargin,
+    double? markerSize,
+    TextStyle? markerSellTextStyle,
+    TextStyle? markerBuyTextStyle,
+  }) {
+    return MarkerStyle(
+      isShowSellMarks: isShowSellMarks ?? this.isShowSellMarks,
+      isShowBuyMarks: isShowBuyMarks ?? this.isShowBuyMarks,
+      sellMarkColor: sellMarkColor ?? this.sellMarkColor,
+      buyMarkColor: buyMarkColor ?? this.buyMarkColor,
+      sellMarkMargin: sellMarkMargin ?? this.sellMarkMargin,
+      buyMarkMargin: buyMarkMargin ?? this.buyMarkMargin,
+      markerSize: markerSize ?? this.markerSize,
+      markerSellTextStyle: markerSellTextStyle ?? this.markerSellTextStyle,
+      markerBuyTextStyle: markerBuyTextStyle ?? this.markerBuyTextStyle,
+    );
   }
 }

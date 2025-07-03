@@ -49,6 +49,7 @@ abstract class BaseChartPainter extends CustomPainter {
   late double mPointWidth;
   List<String> mFormats = [yyyy, '-', mm, '-', dd, ' ', HH, ':', nn]; //格式化时间
   double xFrontPadding;
+  bool isShowMarker;
 
   BaseChartPainter(
     this.chartStyle, {
@@ -64,6 +65,7 @@ abstract class BaseChartPainter extends CustomPainter {
     this.isTapShowInfoDialog = false,
     this.secondaryState = SecondaryState.MACD,
     this.isLine = false,
+    this.isShowMarker = false,
   }) {
     mItemCount = datas?.length ?? 0;
     mPointWidth = this.chartStyle.pointWidth;

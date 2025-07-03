@@ -90,6 +90,12 @@ abstract class BaseChartRenderer<T> {
 
   void drawVerticalText(canvas, textStyle, int gridRows);
 
+  // void drawBuy(T lastPoint, T curPoint, double lastX, double curX, Size size,
+  //     Canvas canvas, MarkerStyle markerStyle);
+
+  // void drawSell(T lastPoint, T curPoint, double lastX, double curX, Size size,
+  //     Canvas canvas, MarkerStyle markerStyle);
+
   void drawChart(T lastPoint, T curPoint, double lastX, double curX, Size size,
       Canvas canvas);
 

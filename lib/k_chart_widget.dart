@@ -40,6 +40,7 @@ class KChartWidget extends StatefulWidget {
   final bool materialInfoDialog; // Material风格的信息弹窗
   final Map<String, ChartTranslations> translations;
   final List<String> timeFormat;
+  final bool isShowMarker; // 是否显示标记线
 
   //当屏幕滚动到尽头会调用，真为拉到屏幕右侧尽头，假为拉到屏幕左侧尽头
   final Function(bool)? onLoadMore;
@@ -58,7 +59,7 @@ class KChartWidget extends StatefulWidget {
   final String decimalSeparator;
   final int? decimalPlaces;
   final Color onHoverShadowColor;
-
+  final MarkerStyle markerStyle;
   KChartWidget(
     this.datas,
     this.chartStyle,
@@ -89,6 +90,11 @@ class KChartWidget extends StatefulWidget {
     this.decimalSeparator = ".",
     this.decimalPlaces,
     this.onHoverShadowColor = const Color(0x80000000),
+    this.isShowMarker = false,
+    this.markerStyle = const MarkerStyle(
+      isShowBuyMarks: true,
+      isShowSellMarks: true,
+    ),
   });
 
   @override
@@ -172,6 +178,8 @@ class _KChartWidgetState extends State<KChartWidget>
       decimalSeparator: widget.decimalSeparator,
       decimalPlaces: widget.decimalPlaces,
       onHoverShadowColor: widget.onHoverShadowColor,
+      isShowMarker: widget.isShowMarker,
+      markerStyle: widget.markerStyle,
     );
 
     return LayoutBuilder(
