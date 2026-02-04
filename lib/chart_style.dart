@@ -6,15 +6,15 @@ class ChartColors {
   Color kLineColor = Color(0xff4C86CD);
   Color lineFillColor = Color(0x554C86CD);
   Color lineFillInsideColor = Color(0x00000000);
-  Color ma5Color = Color(0xFF00D2B4);
+  Color ma5Color = Color(0xFF1CE5E0);
   Color ma10Color = Color(0xFFD3C4ED);
   Color ma30Color = Color(0xFFFEA200);
-  Color upColor = Color(0xff00D2B4);
+  Color upColor = Color(0xFF1CE5E0);
   Color dnColor = Color(0xffEF4444);
-  Color volColor = Color(0xff00d2b4);
+  Color volColor = Color(0xFF1CE5E0);
 
   Color macdColor = Color(0xFFD3C4ED);
-  Color difColor = Color(0xFF00D2B4);
+  Color difColor = Color(0xFF1CE5E0);
   Color deaColor = Color(0xFFFEA200);
 
   Color kColor = Color(0xffC9B885);
@@ -24,7 +24,7 @@ class ChartColors {
 
   Color defaultTextColor = Color(0xff60738E);
 
-  Color nowPriceUpColor = Color(0xff00D2B4);
+  Color nowPriceUpColor = Color(0xFF1CE5E0);
   Color nowPriceDnColor = Color(0xffF64461);
   Color nowPriceUpTextColor = Color(0xff000000);
   Color nowPriceDnTextColor = Color(0xffffffff);
@@ -44,7 +44,7 @@ class ChartColors {
 
   Color infoWindowNormalColor = Color(0xffffffff);
   Color infoWindowTitleColor = Color(0xffffffff);
-  Color infoWindowUpColor = Color(0xff00D2B4);
+  Color infoWindowUpColor = Color(0xFF1CE5E0);
   Color infoWindowDnColor = Color(0xffF64461);
 
   Color hCrossColor = Color(0xffffffff);
