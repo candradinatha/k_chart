@@ -3,6 +3,7 @@ import 'dart:async' show StreamSink;
 import 'package:flutter/material.dart';
 import 'package:k_chart/utils/number_util.dart';
 
+import '../entity/horizontal_line.dart';
 import '../entity/info_window_entity.dart';
 import '../entity/k_line_entity.dart';
 import '../utils/date_format_util.dart';
@@ -54,11 +55,13 @@ class ChartPainter extends BaseChartPainter {
   final Color onHoverShadowColor;
   final bool isShowMarker;
   final MarkerStyle markerStyle;
+  final List<HorizontalLine> horizontalLines;
 
   ChartPainter(
     this.chartStyle,
     this.chartColors, {
     required this.lines, //For TrendLine
+    this.horizontalLines = const [],
     required this.isTrendLine, //For TrendLine
     required this.selectY, //For TrendLine
     required datas,
@@ -267,6 +270,103 @@ class ChartPainter extends BaseChartPainter {
     }
     if (isTrendLine == true) drawTrendLines(canvas, size);
     canvas.restore();
+
+    // Reference lines are drawn in screen space (unscaled), after the candle
+    // transform has been restored.
+    drawHorizontalLines(canvas, size);
+  }
+
+  /// Maps a [HorizontalLine]'s external value into the chart's own Y domain,
+  /// then to a pixel Y using the chart's value→pixel transform.
+  ///
+  /// `value >= axisHigh` -> top edge, `value <= axisLow` -> bottom edge.
+  double horizontalLinePixelY(HorizontalLine line) {
+    final range = line.axisHigh - line.axisLow;
+    final ratio =
+        range == 0 ? 0.0 : ((line.value - line.axisLow) / range).clamp(0.0, 1.0);
+    final chartValue = mMainMinValue + ratio * (mMainMaxValue - mMainMinValue);
+    return getMainY(chartValue);
+  }
+
+  /// Runs the same layout/measure pass as [paint] so callers (e.g. the widget
+  /// overlay) can query pixel positions at widget-build time. Idempotent for a
+  /// given [size].
+  void ensureLayout(Size size) {
+    mDisplayHeight = size.height - mTopPadding - mBottomPadding;
+    mWidth = size.width;
+    initRect(size);
+    calculateValue();
+    initChartRenderer();
+  }
+
+  /// Pixel Y for [line], ensuring the layout pass has run for [size] first.
+  /// Returns null when there is no data to measure against.
+  double? horizontalLinePixelYForSize(HorizontalLine line, Size size) {
+    if (datas == null || datas!.isEmpty) return null;
+    ensureLayout(size);
+    return horizontalLinePixelY(line);
+  }
+
+  void drawHorizontalLines(Canvas canvas, Size size) {
+    if (horizontalLines.isEmpty || datas == null || datas!.isEmpty) return;
+    for (final line in horizontalLines) {
+      final half = line.strokeWidth / 2;
+      // ratio is clamped [0,1] so the value never falls outside [minY, maxY];
+      // clamp the drawn pixel by half the stroke so an edge line isn't
+      // half-clipped at the very top/bottom.
+      final y = horizontalLinePixelY(line)
+          .clamp(mMainRect.top + half, mMainRect.bottom - half)
+          .toDouble();
+
+      final paint = Paint()
+        ..color = line.color
+        ..strokeWidth = line.strokeWidth
+        ..isAntiAlias = true;
+
+      if (line.dashArray.isEmpty) {
+        canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+      } else {
+        final on = line.dashArray[0];
+        final off = line.dashArray.length > 1 ? line.dashArray[1] : on;
+        double startX = 0;
+        while (startX < size.width) {
+          canvas.drawLine(
+              Offset(startX, y), Offset(startX + on, y), paint);
+          startX += on + off;
+        }
+      }
+
+      if (line.showAxisLabels) {
+        _drawAxisCornerLabels(canvas, line);
+      }
+    }
+  }
+
+  /// Draws the external scale's `axisHigh` at the top-right corner and
+  /// `axisLow` at the bottom-right corner of the main chart. This mirrors
+  /// fl_chart's right-axis titles keyed to the full external range.
+  void _drawAxisCornerLabels(Canvas canvas, HorizontalLine line) {
+    final style = TextStyle(
+      color: line.axisLabelColor,
+      fontSize: 10.0,
+      fontWeight: FontWeight.w600,
+    );
+    final highTp = getTextPainter(
+        format(line.axisHigh.toString(), decimalSeparator,
+            decimal: decimalPlaces),
+        line.axisLabelColor,
+        customStyle: style);
+    final lowTp = getTextPainter(
+        format(line.axisLow.toString(), decimalSeparator,
+            decimal: decimalPlaces),
+        line.axisLabelColor,
+        customStyle: style);
+
+    const pad = 4.0;
+    highTp.paint(
+        canvas, Offset(mWidth - highTp.width - pad, mMainRect.top + pad));
+    lowTp.paint(canvas,
+        Offset(mWidth - lowTp.width - pad, mMainRect.bottom - lowTp.height - pad));
   }
 
   @override
