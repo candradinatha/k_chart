@@ -46,6 +46,12 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _priceLeft = true;
   VerticalTextAlignment _verticalTextAlignment = VerticalTextAlignment.left;
 
+  // Avg. Buy reference-line demo. External trade scale is [axisLow, axisHigh];
+  // the value is mapped into the visible candle range by the chart.
+  static const double _avgAxisLow = 20000;
+  static const double _avgAxisHigh = 80000;
+  double? _avgBuyValue = 50000; // null = hidden
+
   ChartStyle chartStyle = ChartStyle();
   ChartColors chartColors = ChartColors();
 
@@ -126,6 +132,19 @@ class _MyHomePageState extends State<MyHomePage> {
               decimalSeparator: ",",
               decimalPlaces: 0,
               isShowMarker: true,
+              horizontalLines: _avgBuyValue == null
+                  ? const []
+                  : [
+                      HorizontalLine(
+                        value: _avgBuyValue!,
+                        axisLow: _avgAxisLow,
+                        axisHigh: _avgAxisHigh,
+                        showAxisLabels: true,
+                        labelWidgetAlignment: Alignment.centerLeft,
+                        labelWidgetBuilder: (line) =>
+                            AvgBuyPill(value: _fmt(line.value)),
+                      ),
+                    ],
             ),
           ),
           if (showLoading)
@@ -175,6 +194,10 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () => _hideGrid = !_hideGrid),
         button(_showNowPrice ? "Hide Now Price" : "Show Now Price",
             onPressed: () => _showNowPrice = !_showNowPrice),
+        button("Avg: Mapped", onPressed: () => _avgBuyValue = 50000),
+        button("Avg: Clamp Top", onPressed: () => _avgBuyValue = 90000),
+        button("Avg: Clamp Bottom", onPressed: () => _avgBuyValue = 10000),
+        button("Avg: Off", onPressed: () => _avgBuyValue = null),
         button("Customize UI", onPressed: () {
           setState(() {
             this.isChangeUI = !this.isChangeUI;
@@ -214,7 +237,7 @@ class _MyHomePageState extends State<MyHomePage> {
       },
       child: Text(text),
       style: TextButton.styleFrom(
-        primary: Colors.white,
+        foregroundColor: Colors.white,
         minimumSize: const Size(88, 44),
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         shape: const RoundedRectangleBorder(
@@ -225,12 +248,24 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  /// Thousands-separated integer formatter, e.g. 50000 -> "50,000".
+  String _fmt(num v) {
+    final neg = v < 0;
+    final s = v.abs().toStringAsFixed(0);
+    final b = StringBuffer();
+    for (var i = 0; i < s.length; i++) {
+      if (i > 0 && (s.length - i) % 3 == 0) b.write(',');
+      b.write(s[i]);
+    }
+    return neg ? '-${b.toString()}' : b.toString();
+  }
+
   void getData(String period) {
     /*
      * 可以翻墙使用方法1加载数据，不可以翻墙使用方法2加载数据，默认使用方法1加载最新数据
      */
-    final Future<String> future = getChatDataFromInternet(period);
-    //final Future<String> future = getChatDataFromJson();
+    //final Future<String> future = getChatDataFromInternet(period);
+    final Future<String> future = getChatDataFromJson();
     future.then((String result) {
       solveChatData(result);
     }).catchError((_) {

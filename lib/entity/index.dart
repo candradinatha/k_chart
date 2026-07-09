@@ -1,6 +1,7 @@
 export 'candle_entity.dart';
 export 'cci_entity.dart';
 export 'depth_entity.dart';
+export 'horizontal_line.dart';
 export 'info_window_entity.dart';
 export 'kdj_entity.dart';
 export 'k_entity.dart';
