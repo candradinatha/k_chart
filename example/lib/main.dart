@@ -33,11 +33,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<KLineEntity>? datas;
   bool showLoading = true;
-  MainState _mainState = MainState.MA;
-  bool _volHidden = false;
+  MainState _mainState = MainState.NONE;
+  bool _volHidden = true;
   SecondaryState _secondaryState = SecondaryState.MACD;
-  bool isLine = true;
-  bool isChinese = true;
+  bool isLine = false;
+  bool isChinese = false;
   bool _hideGrid = false;
   bool _showNowPrice = true;
   List<DepthEntity>? _bids, _asks;
@@ -45,6 +45,12 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _isTrendLine = false;
   bool _priceLeft = true;
   VerticalTextAlignment _verticalTextAlignment = VerticalTextAlignment.left;
+
+  // Avg. Buy reference-line demo. External trade scale is [axisLow, axisHigh];
+  // the value is mapped into the visible candle range by the chart.
+  static const double _avgAxisLow = 20000;
+  static const double _avgAxisHigh = 80000;
+  double? _avgBuyValue = 50000; // null = hidden
 
   ChartStyle chartStyle = ChartStyle();
   ChartColors chartColors = ChartColors();
@@ -125,6 +131,20 @@ class _MyHomePageState extends State<MyHomePage> {
               maDayList: [1, 100, 1000],
               decimalSeparator: ",",
               decimalPlaces: 0,
+              isShowMarker: true,
+              horizontalLines: _avgBuyValue == null
+                  ? const []
+                  : [
+                      HorizontalLine(
+                        value: _avgBuyValue!,
+                        axisLow: _avgAxisLow,
+                        axisHigh: _avgAxisHigh,
+                        showAxisLabels: true,
+                        labelWidgetAlignment: Alignment.centerLeft,
+                        labelWidgetBuilder: (line) =>
+                            AvgBuyPill(value: _fmt(line.value)),
+                      ),
+                    ],
             ),
           ),
           if (showLoading)
@@ -149,8 +169,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return Wrap(
       alignment: WrapAlignment.spaceEvenly,
       children: <Widget>[
-        button("Time Mode", onPressed: () => isLine = true),
-        button("K Line Mode", onPressed: () => isLine = false),
+        button("Time Mode", onPressed: () => isLine = false),
+        button("K Line Mode", onPressed: () => isLine = true),
         button("TrendLine", onPressed: () => _isTrendLine = !_isTrendLine),
         button("Line:MA", onPressed: () => _mainState = MainState.MA),
         button("Line:BOLL", onPressed: () => _mainState = MainState.BOLL),
@@ -174,6 +194,10 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () => _hideGrid = !_hideGrid),
         button(_showNowPrice ? "Hide Now Price" : "Show Now Price",
             onPressed: () => _showNowPrice = !_showNowPrice),
+        button("Avg: Mapped", onPressed: () => _avgBuyValue = 50000),
+        button("Avg: Clamp Top", onPressed: () => _avgBuyValue = 90000),
+        button("Avg: Clamp Bottom", onPressed: () => _avgBuyValue = 10000),
+        button("Avg: Off", onPressed: () => _avgBuyValue = null),
         button("Customize UI", onPressed: () {
           setState(() {
             this.isChangeUI = !this.isChangeUI;
@@ -192,13 +216,13 @@ class _MyHomePageState extends State<MyHomePage> {
         }),
         button("Change PriceTextPaint",
             onPressed: () => setState(() {
-              _priceLeft = !_priceLeft;
-              if (_priceLeft) {
-                _verticalTextAlignment = VerticalTextAlignment.left;
-              } else {
-                _verticalTextAlignment = VerticalTextAlignment.right;
-              }
-            })),
+                  _priceLeft = !_priceLeft;
+                  if (_priceLeft) {
+                    _verticalTextAlignment = VerticalTextAlignment.left;
+                  } else {
+                    _verticalTextAlignment = VerticalTextAlignment.right;
+                  }
+                })),
       ],
     );
   }
@@ -213,7 +237,7 @@ class _MyHomePageState extends State<MyHomePage> {
       },
       child: Text(text),
       style: TextButton.styleFrom(
-        primary: Colors.white,
+        foregroundColor: Colors.white,
         minimumSize: const Size(88, 44),
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         shape: const RoundedRectangleBorder(
@@ -224,12 +248,24 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  /// Thousands-separated integer formatter, e.g. 50000 -> "50,000".
+  String _fmt(num v) {
+    final neg = v < 0;
+    final s = v.abs().toStringAsFixed(0);
+    final b = StringBuffer();
+    for (var i = 0; i < s.length; i++) {
+      if (i > 0 && (s.length - i) % 3 == 0) b.write(',');
+      b.write(s[i]);
+    }
+    return neg ? '-${b.toString()}' : b.toString();
+  }
+
   void getData(String period) {
     /*
      * 可以翻墙使用方法1加载数据，不可以翻墙使用方法2加载数据，默认使用方法1加载最新数据
      */
-    final Future<String> future = getChatDataFromInternet(period);
-    //final Future<String> future = getChatDataFromJson();
+    //final Future<String> future = getChatDataFromInternet(period);
+    final Future<String> future = getChatDataFromJson();
     future.then((String result) {
       solveChatData(result);
     }).catchError((_) {
@@ -261,12 +297,16 @@ class _MyHomePageState extends State<MyHomePage> {
   void solveChatData(String result) {
     final Map parseJson = json.decode(result) as Map<dynamic, dynamic>;
     final list = parseJson['data'] as List<dynamic>;
-    datas = list
-        .map((item) => KLineEntity.fromJson(item as Map<String, dynamic>))
-        .toList()
-        .reversed
-        .toList()
-        .cast<KLineEntity>();
+    List<KLineEntity> entities = [];
+    for (var a = 0; a < list.length; a++) {
+      KLineEntity entity =
+          KLineEntity.fromJson(list[a] as Map<String, dynamic>);
+      entity.isBuy = a % 3 == 0;
+      entity.isSell = a % 3 == 1;
+
+      entities.add(entity);
+    }
+    datas = entities.reversed.toList();
     DataUtil.calculate(datas!);
     showLoading = false;
     setState(() {});

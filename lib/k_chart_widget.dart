@@ -40,6 +40,7 @@ class KChartWidget extends StatefulWidget {
   final bool materialInfoDialog; // Material风格的信息弹窗
   final Map<String, ChartTranslations> translations;
   final List<String> timeFormat;
+  final bool isShowMarker; // 是否显示标记线
 
   //当屏幕滚动到尽头会调用，真为拉到屏幕右侧尽头，假为拉到屏幕左侧尽头
   final Function(bool)? onLoadMore;
@@ -58,7 +59,11 @@ class KChartWidget extends StatefulWidget {
   final String decimalSeparator;
   final int? decimalPlaces;
   final Color onHoverShadowColor;
+  final MarkerStyle markerStyle;
 
+  /// Horizontal reference lines (e.g. average-buy price) drawn across the main
+  /// chart, each optionally carrying a widget "pill" label positioned on it.
+  final List<HorizontalLine> horizontalLines;
   KChartWidget(
     this.datas,
     this.chartStyle,
@@ -89,6 +94,12 @@ class KChartWidget extends StatefulWidget {
     this.decimalSeparator = ".",
     this.decimalPlaces,
     this.onHoverShadowColor = const Color(0x80000000),
+    this.isShowMarker = false,
+    this.markerStyle = const MarkerStyle(
+      isShowBuyMarks: true,
+      isShowSellMarks: true,
+    ),
+    this.horizontalLines = const [],
   });
 
   @override
@@ -172,6 +183,9 @@ class _KChartWidgetState extends State<KChartWidget>
       decimalSeparator: widget.decimalSeparator,
       decimalPlaces: widget.decimalPlaces,
       onHoverShadowColor: widget.onHoverShadowColor,
+      isShowMarker: widget.isShowMarker,
+      markerStyle: widget.markerStyle,
+      horizontalLines: widget.horizontalLines,
     );
 
     return LayoutBuilder(
@@ -290,11 +304,15 @@ class _KChartWidgetState extends State<KChartWidget>
             notifyChanged();
           },
           child: Stack(
+            // Clip.none so a pill overhanging the top/bottom edge is not
+            // clipped when the line is pinned to an extreme.
+            clipBehavior: Clip.none,
             children: <Widget>[
               CustomPaint(
                 size: Size(double.infinity, double.infinity),
                 painter: _painter,
               ),
+              ..._buildHorizontalLineLabels(_painter),
               if (widget.showInfoDialog) _buildInfoDialog()
             ],
           ),
@@ -352,6 +370,38 @@ class _KChartWidgetState extends State<KChartWidget>
       }
     });
     _controller!.forward();
+  }
+
+  /// Builds a widget "pill" for each horizontal line that supplies a builder,
+  /// positioned so its vertical center sits exactly on the line. Horizontal
+  /// anchor comes from `labelWidgetAlignment.x`; vertical is always centered.
+  List<Widget> _buildHorizontalLineLabels(ChartPainter painter) {
+    if (widget.horizontalLines.isEmpty || mWidth == 0 || mHeight == 0) {
+      return const [];
+    }
+    final size = Size(mWidth, mHeight);
+    final labels = <Widget>[];
+    for (final line in widget.horizontalLines) {
+      if (line.labelWidgetBuilder == null) continue;
+      final lineY = painter.horizontalLinePixelYForSize(line, size);
+      if (lineY == null) continue;
+      labels.add(
+        Positioned(
+          left: 0,
+          right: 0,
+          top: lineY,
+          child: FractionalTranslation(
+            translation: const Offset(0, -0.5),
+            child: Align(
+              alignment: Alignment(line.labelWidgetAlignment.x, 0.0),
+              heightFactor: 1.0,
+              child: line.labelWidgetBuilder!(line),
+            ),
+          ),
+        ),
+      );
+    }
+    return labels;
   }
 
   void notifyChanged() => setState(() {});
